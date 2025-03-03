@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOGE Invaders</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            font-family: 'Press Start 2P', cursive;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px; /* More vertical aspect ratio */
+            height: 100%;
+            max-height: 800px; /* More vertical aspect ratio */
+            margin: 0 auto;
+            border: 4px solid #333;
+        }
+
+        canvas {
+            display: block;
+            background-color: #000;
+            width: 100%;
+            height: 100%;
+        }
+
+        .game-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        button {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #ff0000;
+            color: #fff;
+            border: 4px solid #fff;
+            padding: 15px 25px;
+            margin: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        button:hover {
+            background-color: #ff4400;
+            transform: scale(1.05);
+        }
+
+        .character-selection {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .character-option {
+            text-align: center;
+            cursor: pointer;
+            padding: 20px;
+            border: 4px solid #444;
+            transition: all 0.3s;
+            border-radius: 5px;
+            background-color: rgba(50, 50, 50, 0.7);
+            margin-bottom: 20px;
+            width: 80%;
+        }
+
+        .character-option:hover {
+            transform: scale(1.05);
+            border-color: #fff;
+            background-color: rgba(100, 100, 100, 0.7);
+        }
+
+        .character-svg {
+            width: 120px;
+            height: 140px;
+            margin: 0 auto 20px auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .character-option p {
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #ffcc00;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #ffcc00;
+            text-shadow: 3px 3px 0 #ff0000;
+        }
+
+        .mobile-controls {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 33%;
+            display: none;
+        }
+
+        .mobile-controls button {
+            position: absolute;
+            bottom: 30px;
+            width: 80px;
+            height: 80px;
+            background-color: rgba(255, 0, 0, 0.5);
+            border-radius: 50%;
+            border: 4px solid #fff;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-controls button:active {
+            background-color: rgba(255, 0, 0, 0.8);
+        }
+
+        #left-button {
+            left: 30px;
+        }
+
+        #right-button {
+            left: 130px;
+        }
+
+        #fire-button {
+            right: 30px;
+        }
+
+        .sound-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .donation-panel {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            max-width: 350px;
+            background-color: rgba(50, 50, 50, 0.7);
+            padding: 15px;
+            border-radius: 5px;
+            border: 2px solid #444;
+        }
+
+        .donation-panel p {
+            margin-bottom: 10px;
+            color: #ffcc00;
+        }
+
+        #level-message {
+            font-size: 22px;
+            color: #ffcc00;
+            margin: 20px 0;
+            text-shadow: 2px 2px 0 #000;
+            max-width: 80%;
+            text-align: center;
+        }
+
+        @media (max-width: 800px) {
+            #game-container {
+                height: 100vh;
+            }
+            
+            .mobile-controls {
+                display: block;
+            }
+            
+            button {
+                padding: 12px 20px;
+                font-size: 16px;
+            }
+            
+            h1 {
+                font-size: 28px;
+            }
+
+            .character-svg {
+                width: 100px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        
+        <div id="start-screen" class="game-screen">
+            <h1>DOGE INVADERS</h1>
+            <p style="font-size: 18px; margin-bottom: 15px; color: #fff;">A politically satirical Space Invaders clone</p>
+            <p style="font-size: 24px; margin-bottom: 20px; color: #ffcc00;">Choose your character:</p>
+            <div class="character-selection">
+                <div class="character-option" id="fed-employee">
+                    <div class="character-svg" id="fed-svg"></div>
+                    <p>Fed Employee</p>
+                    <p>Defending stable government jobs</p>
+                </div>
+                <div class="character-option" id="doge-employee">
+                    <div class="character-svg" id="doge-svg"></div>
+                    <p>DOGE Employee</p>
+                    <p>Cutting government waste</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="game-over-screen" class="game-screen hidden">
+            <h1>GAME OVER</h1>
+            <p style="font-size: 24px; color: #ff0000; margin: 15px 0;">Final Score: <span id="final-score">0</span></p>
+            <p style="font-size: 20px; color: #ffcc00; margin-bottom: 20px;">High Score: <span id="high-score">0</span></p>
+            <button id="restart-button">Play Again</button>
+            <div class="donation-panel">
+                <p>Support our game:</p>
+                <p>DOGE: DH8Jsg72hsk...</p>
+                <p>BTC: 3FZbgi29cp...</p>
+            </div>
+        </div>
+        
+        <div id="level-complete-screen" class="game-screen hidden">
+            <h1>LEVEL COMPLETE!</h1>
+            <p id="level-message"></p>
+            <button id="next-level-button">Next Level</button>
+        </div>
+        
+        <div class="mobile-controls">
+            <button id="left-button">&lt;</button>
+            <button id="right-button">&gt;</button>
+            <button id="fire-button">Fire</button>
+        </div>
+        
+        <div class="sound-toggle" id="sound-toggle"></div>
+    </div>
+
+    <script>
+        (function() {
+            // Constants and configuration
+            const CANVAS_WIDTH = 500;
+            const CANVAS_HEIGHT = 800;
+            const PLAYER_WIDTH = 60;
+            const PLAYER_HEIGHT = 40;
+            const ENEMY_WIDTH = 50;
+            const ENEMY_HEIGHT = 40;
+            const PROJECTILE_WIDTH = 8;
+            const PROJECTILE_HEIGHT = 20;
+            const ENEMY_ROWS = 4;
+            const ENEMY_COLS = 6;
+            const ENEMY_PADDING = 15;
+            
+            // Game state
+            let canvas, ctx;
+            let gameState = 'start';
+            let lastTime = 0;
+            let score = 0;
+            let level = 1;
+            let lives = 3;
+            let characterType = '';
+            let isMobile = false;
+            let soundEnabled = true;
+            
+            // Player state
+            let player = {
+                x: 0,
+                y: 0,
+                width: PLAYER_WIDTH,
+                height: PLAYER_HEIGHT,
+                speed: 0.4, // SLOWED DOWN
+                projectileSpeed: 1.2,
+                lastFired: 0,
+                fireDelay: 300, // SLOWED DOWN
+                isRapidFire: false,
+                rapidFireTime: 0,
+                powerUpDuration: 8000
+            };
+            
+            // Enemy formation
+            let enemies = [];
+            let formationDirection = 1;
+            let formationSpeed = 0.1; // SLOWED DOWN
+            let formationDropDistance = 20;
+            let enemyFireRate = 0.002; // SLOWED DOWN
+            
+            // Projectiles
+            let playerProjectiles = [];
+            let enemyProjectiles = [];
+            
+            // Power-ups
+            let powerUps = [];
+            let powerUpChance = 0.0003; // SLOWED DOWN
+            let lastPowerUpTime = 0;
+            
+            // Speech bubbles
+            let speechBubbles = [];
+            
+            // Visual effects
+            let defeatedEnemies = [];
+            let screenShake = {
+                intensity: 0,
+                duration: 0,
+                timeLeft: 0
+            };
+            
+            // Keyboard input tracking
+            const keys = {
+                left: false,
+                right: false,
+                fire: false
+            };
+            
+            // Quote databases
+            const fedLevelMessages = [
+                "I think I'll buy that starter home in DC!",
+                "Pension plan looking good!",
+                "Just 15 more years until retirement!",
+                "Public service is so rewarding!",
+                "Another day, another guaranteed paycheck!",
+                "My job security is unmatched!",
+                "I love my government benefits!",
+                "Time to apply for that promotion!",
+                "Paid vacation is the best!",
+                "I'll never have to worry about layoffs!",
+                "Federal holidays are the best perk!",
+                "Health benefits for life!",
+                "I love my flexible work schedule!",
+                "Student loan forgiven, here I come!",
+                "Being a fed means job security!",
+                "Can't wait for my annual pay increase!",
+                "Protecting my pension is important!",
+                "Working for the people feels great!",
+                "Maybe I'll transfer to a cushy office job!",
+                "I'm making a difference... slowly but surely!"
+            ];
+
+            const fedBossQuotes = [
+                "We're going to keep on finding every possible way that we can do that even if Congress is not acting.",
+                "The agencies will continue to develop tools, provide technical assistance, participate in FLW events, coordinate voluntary programs, and engage in policy discussions.",
+                "Our agency is committed to reducing waste and improving efficiency in our operations.",
+                "We are taking steps to minimize our environmental footprint and save tax money.",
+                "Efficiency is a priority for us, and we are making progress every day.",
+                "We're working to make sure every dollar is spent wisely and effectively.",
+                "Our programs are designed to be as efficient as possible, with regular reviews to cut waste.",
+                "We've implemented new technologies to streamline our operations and reduce costs.",
+                "Through better management practices, we've been able to save millions of dollars.",
+                "We're proud of our efforts to be good stewards of public funds."
+            ];
+
+            const fedEnemyQuotes = [
+                "Paperwork is my superpower!",
+                "Coffee breaks keep me going!",
+                "I've got a form for that!",
+                "My desk is my kingdom!",
+                "Rules are my best friends!"
+            ];
+
+            const dogeBossQuotes = [
+                "The existing system fails to safeguard tax dollars or promote merit among contractors and grant recipients.",
+                "We do have an opportunity to do a once-in-a-lifetime deregulation and reduction in the size of government.",
+                "Being a defense hawk and a budget hawk are not mutually exclusive.",
+                "Failure is an option here. If things are not failing, you are not innovating enough.",
+                "The path to the CEO's office should not be through the CFO's office, and it should not be through the marketing department. It needs to be through engineering and design.",
+                "We need to make sure that every dollar spent is for the benefit of the American people, not for wasteful projects.",
+                "Efficiency in government is not just about cutting costs; it's about delivering better services with fewer resources.",
+                "I believe in a lean government that focuses on core functions and eliminates unnecessary bureaucracy.",
+                "Transparency is key; the public has a right to know how their money is being spent.",
+                "We must root out waste, fraud, and abuse in all forms to restore trust in government."
+            ];
+
+            const dogeEnemyQuotes = [
+                "Cutting costs is my cardio!",
+                "Waste? Not on my watch!",
+                "I'm the budget's best buddy!",
+                "Red tape's my worst enemy!",
+                "Efficiency's my middle name!"
+            ];
+
+            const dogeLevelMessages = [
+                "Saved $440,000 by cancelling EEO DEIA SUPPORT contract with the Bureau of Land Management.",
+                "Saved $199,305 by cancelling Legal Database contract with COMMITTEE FOR PURCHASE...",
+                "Saved $21,382.14 by cancelling RENEW WEST PRINT SUBSCRIPT contract with COMMODITY F...",
+                "Saved $9,999,999 by cancelling OMWI Training Support contract with CONSUMER FINANCIAL PROTECTION BUREAU.",
+                "Saved $9,999,999 by cancelling another OMWI Training Support contract with CONSUMER FINANCIAL PROTECTION BUREAU.",
+                "Saved $112,278 by terminating the lease in MIAMI, FL for DEPARTMENT OF STATE.",
+                "Saved $75,739 by terminating the lease in CINCINNATI, OH for BUREAU OF PRISONS.",
+                "Saved $900,000 by terminating the lease in KANSAS CITY for BUREAU OF PRISONS.",
+                "Saved $99,000 by terminating the lease in O'FALLON, IL for FAS SERVICE CENTER.",
+                "Saved $51,000 by terminating the lease in FAIRBORN, OH for FAS.",
+                "Saved $2,473,060 by terminating the lease in ATLANTA, GA for CENTER FOR DISEASE CONTROL."
+            ];
+            
+            // SVG definitions
+            const svgDefs = {
+                fedPlayer: `
+                    <svg viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="20" y="5" width="10" height="15" fill="#000080"/> <!-- Blue suit -->
+                        <rect x="20" y="5" width="10" height="5" fill="#ffffff"/> <!-- White shirt -->
+                        <rect x="23" y="5" width="4" height="15" fill="#ff0000"/> <!-- Red tie -->
+                        <circle cx="25" cy="0" r="5" fill="#ffcc99"/> <!-- Head -->
+                    </svg>
+                `,
+                dogePlayer: `
+                    <svg viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="20" y="5" width="10" height="15" fill="#444444"/> <!-- Dark clothing -->
+                        <circle cx="25" cy="0" r="5" fill="#ffcc99"/> <!-- Head -->
+                        <path d="M 20 0 L 30 0 L 25 -5 Z" fill="#000000"/> <!-- Black cap -->
+                    </svg>
+                `,
+                fedEnemy: `
+                    <svg viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="15" y="5" width="10" height="15" fill="#000080"/> <!-- Blue suit -->
+                        <rect x="15" y="5" width="10" height="5" fill="#ffffff"/> <!-- White shirt -->
+                        <rect x="18" y="5" width="4" height="15" fill="#ff0000"/> <!-- Red tie -->
+                        <circle cx="20" cy="0" r="5" fill="#ffcc99"/> <!-- Head -->
+                    </svg>
+                `,
+                dogeEnemy: `
+                    <svg viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="15" y="5" width="10" height="15" fill="#444444"/> <!-- Dark clothing -->
+                        <circle cx="20" cy="0" r="5" fill="#ffcc99"/> <!-- Head -->
+                        <path d="M 15 0 L 25 0 L 20 -5 Z" fill="#aa0000"/> <!-- Red cap -->
+                    </svg>
+                `,
+                fedBoss: `
+                    <svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="20" y="5" width="20" height="25" fill="#000080"/> <!-- Blue suit -->
+                        <rect x="20" y="5" width="20" height="8" fill="#ffffff"/> <!-- White shirt -->
+                        <rect x="28" y="5" width="4" height="25" fill="#ff0000"/> <!-- Red tie -->
+                        <circle cx="30" cy="0" r="8" fill="#ffcc99"/> <!-- Head -->
+                    </svg>
+                `,
+                dogeBoss: `
+                    <svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="20" y="5" width="20" height="25" fill="#444444"/> <!-- Dark clothing -->
+                        <circle cx="30" cy="0" r="8" fill="#ffcc99"/> <!-- Head -->
+                        <path d="M 22 0 L 38 0 L 30 -8 Z" fill="#aa0000"/> <!-- Red cap -->
+                    </svg>
+                `,
+                projectile: `
+                    <svg viewBox="0 0 5 15" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0" y="0" width="5" height="15" fill="#ffffff"/>
+                    </svg>
+                `,
+                enemyProjectile: `
+                    <svg viewBox="0 0 5 15" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0" y="0" width="5" height="15" fill="#ff0000"/>
+                    </svg>
+                `,
+                powerUp: `
+                    <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="15" cy="15" r="15" fill="#00ff00"/>
+                        <text x="15" y="20" font-size="20" text-anchor="middle" fill="#000">P</text>
+                    </svg>
+                `,
+                soundOn: `
+                    <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 0,10 L 8,10 L 18,5 L 18,25 L 8,20 L 0,20 Z" fill="#ffffff"/>
+                        <path d="M 20,10 Q 25,15 20,20" stroke="#ffffff" stroke-width="2" fill="none"/>
+                        <path d="M 22,5 Q 30,15 22,25" stroke="#ffffff" stroke-width="2" fill="none"/>
+                    </svg>
+                `,
+                soundOff: `
+                    <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 0,10 L 8,10 L 18,5 L 18,25 L 8,20 L 0,20 Z" fill="#ffffff"/>
+                        <path d="M 20,10 L 30,20" stroke="#ffffff" stroke-width="2"/>
+                        <path d="M 20,20 L 30,10" stroke="#ffffff" stroke-width="2"/>
+                    </svg>
+                `
+            };
+
+            // SVG cache for better performance
+            const svgCache = {};
+            
+            // Audio context and sounds
+            let audioContext;
+            let audioInitialized = false;
+            
+            // Initialize the game
+            function init() {
+                canvas = document.getElementById('game-canvas');
+                ctx = canvas.getContext('2d');
+                
+                // Set canvas dimensions
+                canvas.width = CANVAS_WIDTH;
+                canvas.height = CANVAS_HEIGHT;
+                
+                // Check if on mobile
+                isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 800;
+                
+                // Set up event listeners
+                document.getElementById('fed-employee').addEventListener('click', () => selectCharacter('fed'));
+                document.getElementById('doge-employee').addEventListener('click', () => selectCharacter('doge'));
+                document.getElementById('restart-button').addEventListener('click', restartGame);
+                document.getElementById('next-level-button').addEventListener('click', startNextLevel);
+                document.getElementById('sound-toggle').addEventListener('click', toggleSound);
+                
+                // Set up character SVGs
+                document.getElementById('fed-svg').innerHTML = svgDefs.fedPlayer;
+                document.getElementById('doge-svg').innerHTML = svgDefs.dogePlayer;
+                
+                // Set up sound toggle
+                document.getElementById('sound-toggle').innerHTML = svgDefs.soundOn;
+                
+                // Set up keyboard controls
+                window.addEventListener('keydown', handleKeyDown);
+                window.addEventListener('keyup', handleKeyUp);
+                
+                // Set up mobile controls
+                if (isMobile) {
+                    document.getElementById('left-button').addEventListener('touchstart', () => { keys.left = true; });
+                    document.getElementById('left-button').addEventListener('touchend', () => { keys.left = false; });
+                    document.getElementById('right-button').addEventListener('touchstart', () => { keys.right = true; });
+                    document.getElementById('right-button').addEventListener('touchend', () => { keys.right = false; });
+                    document.getElementById('fire-button').addEventListener('touchstart', () => { keys.fire = true; });
+                    document.getElementById('fire-button').addEventListener('touchend', () => { keys.fire = false; });
+                }
+                
+                // Initialize SVG cache for better performance
+                initSVGCache();
+                
+                // Load high score
+                loadHighScore();
+                
+                // Show start screen
+                setGameState('start');
+            }
+            
+            // Initialize SVG cache by pre-rendering SVGs
+            function initSVGCache() {
+                for (const key in svgDefs) {
+                    const img = new Image();
+                    const svgBlob = new Blob([svgDefs[key]], { type: 'image/svg+xml' });
+                    const url = URL.createObjectURL(svgBlob);
+                    
+                    img.onload = function() {
+                        svgCache[key] = img;
+                        URL.revokeObjectURL(url);
+                    };
+                    
+                    img.src = url;
+                }
+            }
+
+            // Initialize Audio Context with fallbacks
+            function initAudio() {
+                if (audioInitialized) return true;
+                
+                try {
+                    // Create audio context based on browser support
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        audioContext = new AudioContext();
+                        
+                        // Load sound preferences
+                        soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+                        updateSoundToggle();
+                        
+                        audioInitialized = true;
+                        return true;
+                    }
+                } catch (e) {
+                    console.error("Web Audio API not supported:", e);
+                }
+                
+                return false;
+            }
+            
+            // Sound functions - SMOOTHED SOUNDS
+            function playShoot() {
+                if (!soundEnabled || !audioInitialized) {
+                    // Try to initialize audio on user interaction
+                    if (!initAudio()) return;
+                }
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                // Use a smoother waveform
+                oscillator.type = 'triangle';
+                oscillator.frequency.value = 440; // Lower frequency for less sharpness
+                
+                // Gentler attack and release
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.02);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.15);
+            }
+            
+            function playEnemyHit() {
+                if (!soundEnabled || !audioInitialized) {
+                    if (!initAudio()) return;
+                }
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                // Use a smoother waveform
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                oscillator.frequency.linearRampToValueAtTime(400, audioContext.currentTime + 0.3);
+                
+                // Gentler attack and longer release
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.3);
+            }
+            
+            function playPowerup() {
+                if (!soundEnabled || !audioInitialized) {
+                    if (!initAudio()) return;
+                }
+                
+                const notes = [330, 440, 550];
+                const noteDuration = 0.1;
+                
+                for (let i = 0; i < notes.length; i++) {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    // Smoother sine wave
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = notes[i];
+                    
+                    // Gentler attack and release
+                    const startTime = audioContext.currentTime + i * noteDuration;
+                    gainNode.gain.setValueAtTime(0, startTime);
+                    gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.03);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + noteDuration);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start(startTime);
+                    oscillator.stop(startTime + noteDuration);
+                }
+            }
+            
+            function playLevelComplete() {
+                if (!soundEnabled || !audioInitialized) {
+                    if (!initAudio()) return;
+                }
+                
+                const notes = [330, 392, 440, 523];
+                const noteDuration = 0.25;
+                
+                for (let i = 0; i < notes.length; i++) {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    // Smoother sine wave
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = notes[i];
+                    
+                    // Gentler attack and release
+                    const startTime = audioContext.currentTime + i * noteDuration;
+                    gainNode.gain.setValueAtTime(0, startTime);
+                    gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + noteDuration);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start(startTime);
+                    oscillator.stop(startTime + noteDuration);
+                }
+            }
+            
+            function playGameOver() {
+                if (!soundEnabled || !audioInitialized) {
+                    if (!initAudio()) return;
+                }
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                // Smoother sine wave
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+                oscillator.frequency.linearRampToValueAtTime(220, audioContext.currentTime + 1.0);
+                
+                // Gentler attack and release
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.1);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.0);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 1.0);
+            }
+            
+            function playEnemyProjectile() {
+                if (!soundEnabled || !audioInitialized) {
+                    if (!initAudio()) return;
+                }
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                // Smoother sine wave
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 180;
+                
+                // Gentler attack and release
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.02);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.15);
+            }
+            
+            // Toggle sound on/off
+            function toggleSound() {
+                soundEnabled = !soundEnabled;
+                updateSoundToggle();
+                
+                // Save preference
+                localStorage.setItem('soundEnabled', soundEnabled);
+                
+                // Initialize audio if turning on sound
+                if (soundEnabled) {
+                    initAudio();
+                }
+            }
+            
+            // Update sound toggle icon
+            function updateSoundToggle() {
+                document.getElementById('sound-toggle').innerHTML = soundEnabled ? svgDefs.soundOn : svgDefs.soundOff;
+            }
+            
+            // Set game state and show/hide appropriate screens
+            function setGameState(state) {
+                gameState = state;
+                
+                // Hide all screens
+                document.getElementById('start-screen').classList.add('hidden');
+                document.getElementById('game-over-screen').classList.add('hidden');
+                document.getElementById('level-complete-screen').classList.add('hidden');
+                
+                // Show appropriate screen
+                if (state === 'start') {
+                    document.getElementById('start-screen').classList.remove('hidden');
+                } else if (state === 'gameOver') {
+                    document.getElementById('final-score').textContent = score;
+                    document.getElementById('high-score').textContent = getHighScore();
+                    document.getElementById('game-over-screen').classList.remove('hidden');
+                    playGameOver();
+                } else if (state === 'levelComplete') {
+                    const messageArray = characterType === 'fed' ? fedLevelMessages : dogeLevelMessages;
+                    const messageIndex = (level - 1) % messageArray.length;
+                    document.getElementById('level-message').textContent = messageArray[messageIndex];
+                    document.getElementById('level-complete-screen').classList.remove('hidden');
+                    playLevelComplete();
+                }
+            }
+            
+            // Handle character selection
+            function selectCharacter(type) {
+                characterType = type;
+                resetGame();
+                setGameState('playing');
+                
+                // Start game loop
+                lastTime = performance.now();
+                requestAnimationFrame(gameLoop);
+            }
+            
+            // Reset game state for a new game
+            function resetGame() {
+                score = 0;
+                level = 1;
+                lives = 3;
+                
+                resetLevel();
+            }
+            
+            // Reset level state
+            function resetLevel() {
+                // Reset player
+                player.x = (canvas.width - player.width) / 2;
+                player.y = canvas.height - player.height - 20;
+                player.isRapidFire = false;
+                
+                // Clear projectiles
+                playerProjectiles = [];
+                enemyProjectiles = [];
+                
+                // Clear power-ups
+                powerUps = [];
+                
+                // Clear speech bubbles
+                speechBubbles = [];
+                
+                // Clear visual effects
+                defeatedEnemies = [];
+                screenShake = { intensity: 0, duration: 0, timeLeft: 0 };
+                
+                // Reset formation direction
+                formationDirection = 1;
+                
+                // Set formation speed based on level
+                formationSpeed = 0.1 + (level - 1) * 0.05;
+                
+                // Set enemy fire rate based on level
+                enemyFireRate = 0.002 + (level - 1) * 0.0005;
+                
+                // Create enemy formation
+                createEnemies();
+            }
+            
+            // Create enemy formation
+            function createEnemies() {
+                enemies = [];
+                
+                const enemyType = characterType === 'fed' ? 'doge' : 'fed';
+                const rows = isMobile ? Math.min(3, ENEMY_ROWS) : ENEMY_ROWS;
+                const cols = isMobile ? Math.min(5, ENEMY_COLS) : ENEMY_COLS;
+                
+                // Calculate starting position to center formation
+                const formationWidth = cols * (ENEMY_WIDTH + ENEMY_PADDING) - ENEMY_PADDING;
+                const startX = (canvas.width - formationWidth) / 2;
+                const startY = 70;
+                
+                for (let row = 0; row < rows; row++) {
+                    for (let col = 0; col < cols; col++) {
+                        // Determine if this is a boss (every 3rd level, first row)
+                        const isBoss = level % 3 === 0 && row === 0;
+                        
+                        // Create enemy
+                        const enemy = {
+                            x: startX + col * (ENEMY_WIDTH + ENEMY_PADDING),
+                            y: startY + row * (ENEMY_HEIGHT + ENEMY_PADDING),
+                            width: isBoss ? 70 : ENEMY_WIDTH,
+                            height: isBoss ? 50 : ENEMY_HEIGHT,
+                            health: isBoss ? 5 + Math.floor(level / 3) : 1,
+                            type: enemyType,
+                            isBoss: isBoss,
+                            lastSpeechTime: 0,
+                            speechChance: isBoss ? 0.01 : 0.001
+                        };
+                        
+                        enemies.push(enemy);
+                    }
+                }
+            }
+            
+            // Restart game
+            function restartGame() {
+                resetGame();
+                setGameState('playing');
+                
+                // Restart game loop if needed
+                if (!lastTime) {
+                    lastTime = performance.now();
+                    requestAnimationFrame(gameLoop);
+                }
+            }
+            
+            // Start next level
+            function startNextLevel() {
+                level++;
+                resetLevel();
+                setGameState('playing');
+            }
+            
+            // Handle keyboard controls
+            function handleKeyDown(e) {
+                if (e.key === 'ArrowLeft' || e.key === 'a') {
+                    keys.left = true;
+                } else if (e.key === 'ArrowRight' || e.key === 'd') {
+                    keys.right = true;
+                } else if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w') {
+                    keys.fire = true;
+                }
+            }
+            
+            function handleKeyUp(e) {
+                if (e.key === 'ArrowLeft' || e.key === 'a') {
+                    keys.left = false;
+                } else if (e.key === 'ArrowRight' || e.key === 'd') {
+                    keys.right = false;
+                } else if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w') {
+                    keys.fire = false;
+                }
+            }
+            
+            // Get high score from local storage
+            function getHighScore() {
+                return parseInt(localStorage.getItem('highScore') || '0');
+            }
+            
+            // Save high score to local storage
+            function saveHighScore() {
+                const highScore = getHighScore();
+                if (score > highScore) {
+                    localStorage.setItem('highScore', score.toString());
+                }
+            }
+            
+            // Load high score
+            function loadHighScore() {
+                document.getElementById('high-score').textContent = getHighScore();
+            }
+            
+            // Create player projectile
+            function createPlayerProjectile() {
+                const now = performance.now();
+                const fireDelay = player.isRapidFire ? 120 : 300;
+                
+                if (now - player.lastFired < fireDelay) {
+                    return;
+                }
+                
+                player.lastFired = now;
+                
+                const projectile = {
+                    x: player.x + (player.width / 2) - (PROJECTILE_WIDTH / 2),
+                    y: player.y - PROJECTILE_HEIGHT,
+                    width: PROJECTILE_WIDTH,
+                    height: PROJECTILE_HEIGHT,
+                    speed: player.projectileSpeed
+                };
+                
+                playerProjectiles.push(projectile);
+                playShoot();
+            }
+            
+            // Create enemy projectile
+            function createEnemyProjectile(enemy) {
+                // Don't fire if off screen
+                if (enemy.y + enemy.height > canvas.height) {
+                    return;
+                }
+                
+                // Determine projectile type based on enemy type and level
+                let projectilePattern = 'single';
+                
+                // Boss enemies have special patterns every 6th level
+                if (enemy.isBoss && level % 6 === 0) {
+                    projectilePattern = 'circular';
+                } else if (enemy.isBoss) {
+                    projectilePattern = 'spread';
+                }
+                
+                if (projectilePattern === 'single') {
+                    // Single projectile
+                    const projectile = {
+                        x: enemy.x + (enemy.width / 2) - (PROJECTILE_WIDTH / 2),
+                        y: enemy.y + enemy.height,
+                        width: PROJECTILE_WIDTH,
+                        height: PROJECTILE_HEIGHT,
+                        speed: 0.4 // SLOWED DOWN
+                    };
+                    
+                    enemyProjectiles.push(projectile);
+                } else if (projectilePattern === 'spread') {
+                    // Spread pattern (3 projectiles)
+                    for (let i = -1; i <= 1; i++) {
+                        const projectile = {
+                            x: enemy.x + (enemy.width / 2) - (PROJECTILE_WIDTH / 2),
+                            y: enemy.y + enemy.height,
+                            width: PROJECTILE_WIDTH,
+                            height: PROJECTILE_HEIGHT,
+                            speed: 0.4, // SLOWED DOWN
+                            xVelocity: i * 0.15 // SLOWED DOWN
+                        };
+                        
+                        enemyProjectiles.push(projectile);
+                    }
+                } else if (projectilePattern === 'circular') {
+                    // Circular pattern (6 projectiles)
+                    for (let i = 0; i < 6; i++) {
+                        const angle = (i / 6) * Math.PI * 2;
+                        const projectile = {
+                            x: enemy.x + (enemy.width / 2) - (PROJECTILE_WIDTH / 2),
+                            y: enemy.y + enemy.height,
+                            width: PROJECTILE_WIDTH,
+                            height: PROJECTILE_HEIGHT,
+                            speed: 0.4, // SLOWED DOWN
+                            xVelocity: Math.sin(angle) * 0.25, // SLOWED DOWN
+                            yVelocity: Math.cos(angle) * 0.25 // SLOWED DOWN
+                        };
+                        
+                        enemyProjectiles.push(projectile);
+                    }
+                }
+                
+                playEnemyProjectile();
+            }
+            
+            // Create power-up
+            function createPowerUp() {
+                const now = performance.now();
+                
+                // Only create power-ups every 15-30 seconds
+                if (now - lastPowerUpTime < 15000 + Math.random() * 15000) {
+                    return;
+                }
+                
+                lastPowerUpTime = now;
+                
+                const powerUp = {
+                    x: Math.random() * (canvas.width - 40),
+                    y: 70 + Math.random() * 100,
+                    width: 40,
+                    height: 40,
+                    type: 'rapidFire',
+                    speed: 0.1 // SLOWED DOWN
+                };
+                
+                powerUps.push(powerUp);
+            }
+            
+            // Create speech bubble
+            function createSpeechBubble(enemy, text) {
+                // Limit to 2 active speech bubbles to prevent clutter
+                if (speechBubbles.length >= 2) {
+                    return;
+                }
+                
+                // Don't create speech bubble if enemy is off screen
+                if (enemy.y + enemy.height > canvas.height) {
+                    return;
+                }
+                
+                // Choose appropriate quote
+                let quote;
+                if (enemy.isBoss) {
+                    quote = enemy.type === 'fed' ? 
+                        fedBossQuotes[Math.floor(Math.random() * fedBossQuotes.length)] : 
+                        dogeBossQuotes[Math.floor(Math.random() * dogeBossQuotes.length)];
+                } else {
+                    quote = enemy.type === 'fed' ? 
+                        fedEnemyQuotes[Math.floor(Math.random() * fedEnemyQuotes.length)] : 
+                        dogeEnemyQuotes[Math.floor(Math.random() * dogeEnemyQuotes.length)];
+                }
+                
+                text = quote || text;
+                
+                // Calculate bubble dimensions based on text length
+                const maxWidth = 200;
+                const fontSize = 16; // INCREASED
+                const padding = 15;
+                const lineHeight = fontSize * 1.5;
+                
+                // Measure text and wrap if needed
+                const words = text.split(' ');
+                let lines = [];
+                let currentLine = words[0];
+                
+                for (let i = 1; i < words.length; i++) {
+                    const testLine = currentLine + ' ' + words[i];
+                    const testWidth = ctx.measureText(testLine).width;
+                    
+                    if (testWidth > maxWidth - (padding * 2)) {
+                        lines.push(currentLine);
+                        currentLine = words[i];
+                    } else {
+                        currentLine = testLine;
+                    }
+                }
+                lines.push(currentLine);
+                
+                const bubbleWidth = maxWidth;
+                const bubbleHeight = lines.length * lineHeight + padding * 2;
+                
+                // Create speech bubble
+                const speechBubble = {
+                    x: enemy.x + enemy.width / 2,
+                    y: enemy.y,
+                    width: bubbleWidth,
+                    height: bubbleHeight,
+                    text: text,
+                    lines: lines,
+                    enemy: enemy,
+                    duration: enemy.isBoss ? 5000 : 4000,
+                    createdAt: performance.now()
+                };
+                
+                speechBubbles.push(speechBubble);
+            }
+            
+            // Create defeated enemy animation
+            function createDefeatedEnemy(enemy) {
+                // Apply random velocity vector and rotation with UPWARD movement
+                const defeatedEnemy = {
+                    ...enemy,
+                    rotation: 0,
+                    rotationSpeed: (Math.random() - 0.5) * 20,
+                    xVelocity: (Math.random() - 0.5) * 2,
+                    yVelocity: -2 - Math.random() * 2, // UPWARD velocity
+                    gravity: -0.05, // NEGATIVE gravity to float upward
+                    opacity: 1,
+                    createdAt: performance.now(),
+                    trail: []
+                };
+                
+                defeatedEnemies.push(defeatedEnemy);
+            }
+            
+            // Apply screen shake effect
+            function applyScreenShake(intensity, duration) {
+                screenShake.intensity = intensity;
+                screenShake.duration = duration;
+                screenShake.timeLeft = duration;
+            }
+            
+            // Check for collision between two objects
+            function checkCollision(obj1, obj2) {
+                return (
+                    obj1.x < obj2.x + obj2.width &&
+                    obj1.x + obj1.width > obj2.x &&
+                    obj1.y < obj2.y + obj2.height &&
+                    obj1.y + obj1.height > obj2.y
+                );
+            }
+            
+            // Update player position
+            function updatePlayer(deltaTime) {
+                // Handle movement
+                if (keys.left) {
+                    player.x -= canvas.width * player.speed * deltaTime / 1000;
+                }
+                
+                if (keys.right) {
+                    player.x += canvas.width * player.speed * deltaTime / 1000;
+                }
+                
+                // Keep player within canvas bounds
+                if (player.x < 0) {
+                    player.x = 0;
+                } else if (player.x + player.width > canvas.width) {
+                    player.x = canvas.width - player.width;
+                }
+                
+                // Handle firing
+                if (keys.fire) {
+                    createPlayerProjectile();
+                }
+                
+                // Update rapid fire timer
+                if (player.isRapidFire) {
+                    if (performance.now() - player.rapidFireTime > player.powerUpDuration) {
+                        player.isRapidFire = false;
+                    }
+                }
+            }
+            
+            // Update enemy formation
+            function updateEnemies(deltaTime) {
+                if (enemies.length === 0) {
+                    // Level complete if all enemies are defeated
+                    setGameState('levelComplete');
+                    return;
+                }
+                
+                // Find formation bounds
+                let leftmost = canvas.width;
+                let rightmost = 0;
+                let lowest = 0;
+                
+                enemies.forEach(enemy => {
+                    leftmost = Math.min(leftmost, enemy.x);
+                    rightmost = Math.max(rightmost, enemy.x + enemy.width);
+                    lowest = Math.max(lowest, enemy.y + enemy.height);
+                });
+                
+                // Move formation
+                let dropFormation = false;
+                
+                if (formationDirection === 1 && rightmost + canvas.width * formationSpeed * deltaTime / 1000 > canvas.width) {
+                    formationDirection = -1;
+                    dropFormation = true;
+                } else if (formationDirection === -1 && leftmost - canvas.width * formationSpeed * deltaTime / 1000 < 0) {
+                    formationDirection = 1;
+                    dropFormation = true;
+                }
+                
+                // Move enemy formation
+                enemies.forEach(enemy => {
+                    // Move horizontally
+                    enemy.x += canvas.width * formationSpeed * formationDirection * deltaTime / 1000;
+                    
+                    // Drop formation if needed
+                    if (dropFormation) {
+                        enemy.y += formationDropDistance;
+                    }
+                    
+                    // Game over if enemies reach the bottom
+                    if (enemy.y + enemy.height > player.y) {
+                        saveHighScore();
+                        setGameState('gameOver');
+                    }
+                    
+                    // Random enemy firing
+                    if (Math.random() < enemyFireRate * deltaTime / 16.67) {
+                        // Lower enemies are more likely to fire
+                        const lowestInColumn = enemies.reduce((lowest, current) => {
+                            const sameColumn = Math.abs(current.x + current.width/2 - (enemy.x + enemy.width/2)) < enemy.width/2;
+                            return sameColumn && current.y > lowest.y ? current : lowest;
+                        }, { y: -Infinity });
+                        
+                        if (lowestInColumn === enemy) {
+                            createEnemyProjectile(enemy);
+                        }
+                    }
+                    
+                    // Random enemy speech
+                    const now = performance.now();
+                    if (now - enemy.lastSpeechTime > 5000 && Math.random() < enemy.speechChance * deltaTime / 16.67) {
+                        enemy.lastSpeechTime = now;
+                        createSpeechBubble(enemy);
+                    }
+                });
+            }
+            
+            // Update player projectiles
+            function updatePlayerProjectiles(deltaTime) {
+                for (let i = playerProjectiles.length - 1; i >= 0; i--) {
+                    const projectile = playerProjectiles[i];
+                    
+                    // Move projectile
+                    projectile.y -= canvas.height * projectile.speed * deltaTime / 1000;
+                    
+                    // Remove if off screen
+                    if (projectile.y + projectile.height < 0) {
+                        playerProjectiles.splice(i, 1);
+                        continue;
+                    }
+                    
+                    // Check for collision with enemies
+                    let hitEnemy = false;
+                    
+                    for (let j = enemies.length - 1; j >= 0; j--) {
+                        const enemy = enemies[j];
+                        
+                        if (checkCollision(projectile, enemy)) {
+                            enemy.health--;
+                            hitEnemy = true;
+                            
+                            // Award points
+                            score += enemy.isBoss ? 50 : 10;
+                            
+                            // If enemy is defeated
+                            if (enemy.health <= 0) {
+                                createDefeatedEnemy(enemy);
+                                enemies.splice(j, 1);
+                                playEnemyHit();
+                                
+                                // Apply screen shake
+                                const shakeIntensity = enemy.isBoss ? 10 : 5;
+                                const shakeDuration = enemy.isBoss ? 500 : 250;
+                                applyScreenShake(shakeIntensity, shakeDuration);
+                            }
+                            
+                            break;
+                        }
+                    }
+                    
+                    // Remove projectile if it hit an enemy
+                    if (hitEnemy) {
+                        playerProjectiles.splice(i, 1);
+                    }
+                }
+            }
+            
+            // Update enemy projectiles
+            function updateEnemyProjectiles(deltaTime) {
+                for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
+                    const projectile = enemyProjectiles[i];
+                    
+                    // Move projectile
+                    projectile.y += canvas.height * projectile.speed * deltaTime / 1000;
+                    
+                    // Move horizontally if it has x velocity
+                    if (projectile.xVelocity) {
+                        projectile.x += canvas.width * projectile.xVelocity * deltaTime / 1000;
+                    }
+                    
+                    // Custom y velocity if specified (for circular pattern)
+                    if (projectile.yVelocity) {
+                        projectile.y += canvas.height * projectile.yVelocity * deltaTime / 1000;
+                    }
+                    
+                    // Remove if off screen
+                    if (projectile.y > canvas.height || 
+                        projectile.x + projectile.width < 0 || 
+                        projectile.x > canvas.width) {
+                        enemyProjectiles.splice(i, 1);
+                        continue;
+                    }
+                    
+                    // Check for collision with player
+                    if (checkCollision(projectile, player)) {
+                        enemyProjectiles.splice(i, 1);
+                        lives--;
+                        
+                        if (lives <= 0) {
+                            saveHighScore();
+                            setGameState('gameOver');
+                        } else {
+                            // Apply screen shake
+                            applyScreenShake(15, 500);
+                        }
+                    }
+                }
+            }
+            
+            // Update power-ups
+            function updatePowerUps(deltaTime) {
+                // Chance to create a power-up
+                if (Math.random() < powerUpChance * deltaTime / 16.67) {
+                    createPowerUp();
+                }
+                
+                for (let i = powerUps.length - 1; i >= 0; i--) {
+                    const powerUp = powerUps[i];
+                    
+                    // Move power-up down
+                    powerUp.y += canvas.height * powerUp.speed * deltaTime / 1000;
+                    
+                    // Remove if off screen
+                    if (powerUp.y > canvas.height) {
+                        powerUps.splice(i, 1);
+                        continue;
+                    }
+                    
+                    // Check for collision with player
+                    if (checkCollision(powerUp, player)) {
+                        powerUps.splice(i, 1);
+                        
+                        // Apply power-up effect
+                        if (powerUp.type === 'rapidFire') {
+                            player.isRapidFire = true;
+                            player.rapidFireTime = performance.now();
+                            playPowerup();
+                        }
+                    }
+                }
+            }
+            
+            // Update speech bubbles
+            function updateSpeechBubbles(deltaTime) {
+                const now = performance.now();
+                
+                for (let i = speechBubbles.length - 1; i >= 0; i--) {
+                    const bubble = speechBubbles[i];
+                    
+                    // Remove if duration expired
+                    if (now - bubble.createdAt > bubble.duration) {
+                        speechBubbles.splice(i, 1);
+                    }
+                }
+            }
+            
+            // Update defeated enemies - FLOAT UP INSTEAD OF DOWN
+            function updateDefeatedEnemies(deltaTime) {
+                const now = performance.now();
+                
+                for (let i = defeatedEnemies.length - 1; i >= 0; i--) {
+                    const enemy = defeatedEnemies[i];
+                    
+                    // Apply physics
+                    enemy.x += enemy.xVelocity * deltaTime / 16.67;
+                    enemy.y += enemy.yVelocity * deltaTime / 16.67;
+                    
+                    // Apply negative gravity to float upward
+                    enemy.yVelocity += enemy.gravity * deltaTime / 16.67;
+                    
+                    enemy.rotation += enemy.rotationSpeed * deltaTime / 16.67;
+                    
+                    // Add trail point
+                    if (now % 50 < 16.67) { // Add a point roughly every 50ms
+                        enemy.trail.push({ x: enemy.x + enemy.width/2, y: enemy.y + enemy.height/2, opacity: 1 });
+                    }
+                    
+                    // Update trail opacity
+                    for (let j = enemy.trail.length - 1; j >= 0; j--) {
+                        const point = enemy.trail[j];
+                        point.opacity -= 0.05 * deltaTime / 16.67;
+                        
+                        // Remove faded trail points
+                        if (point.opacity <= 0) {
+                            enemy.trail.splice(j, 1);
+                        }
+                    }
+                    
+                    // Fade out gradually
+                    if (now - enemy.createdAt > 800) {
+                        enemy.opacity -= 0.03 * deltaTime / 16.67;
+                    }
+                    
+                    // Remove if invisible or off screen (TOP of screen)
+                    if (enemy.opacity <= 0 || enemy.y + enemy.height < -50) {
+                        defeatedEnemies.splice(i, 1);
+                    }
+                }
+            }
+            
+            // Update screen shake effect
+            function updateScreenShake(deltaTime) {
+                if (screenShake.timeLeft > 0) {
+                    screenShake.timeLeft -= deltaTime;
+                    
+                    // Decrease intensity over time
+                    const progress = screenShake.timeLeft / screenShake.duration;
+                    screenShake.intensity = screenShake.intensity * progress;
+                }
+            }
+            
+            // Main game update function
+            function update(deltaTime) {
+                if (gameState !== 'playing') {
+                    return;
+                }
+                
+                updatePlayer(deltaTime);
+                updateEnemies(deltaTime);
+                updatePlayerProjectiles(deltaTime);
+                updateEnemyProjectiles(deltaTime);
+                updatePowerUps(deltaTime);
+                updateSpeechBubbles(deltaTime);
+                updateDefeatedEnemies(deltaTime);
+                updateScreenShake(deltaTime);
+            }
+            
+            // Render game objects
+            function render() {
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Apply screen shake
+                let shakeX = 0;
+                let shakeY = 0;
+                
+                if (screenShake.timeLeft > 0) {
+                    shakeX = (Math.random() - 0.5) * 2 * screenShake.intensity;
+                    shakeY = (Math.random() - 0.5) * 2 * screenShake.intensity;
+                    
+                    ctx.save();
+                    ctx.translate(shakeX, shakeY);
+                }
+                
+                // Draw player
+                if (gameState === 'playing') {
+                    const playerImage = svgCache[characterType + 'Player'];
+                    if (playerImage) {
+                        ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+                    }
+                }
+                
+                // Draw enemies
+                enemies.forEach(enemy => {
+                    // Draw enemy with pulsing effect for bosses
+                    const enemyImage = svgCache[enemy.type + (enemy.isBoss ? 'Boss' : 'Enemy')];
+                    if (enemyImage) {
+                        if (enemy.isBoss) {
+                            // Add pulsing glow for bosses
+                            const pulseAmount = Math.sin(performance.now() / 300) * 0.2 + 0.8;
+                            
+                            ctx.save();
+                            ctx.globalAlpha = 0.3;
+                            ctx.drawImage(
+                                enemyImage, 
+                                enemy.x - 5, 
+                                enemy.y - 5, 
+                                enemy.width + 10, 
+                                enemy.height + 10
+                            );
+                            ctx.restore();
+                        }
+                        
+                        ctx.drawImage(enemyImage, enemy.x, enemy.y, enemy.width, enemy.height);
+                    }
+                });
+                
+                // Draw player projectiles
+                const projectileImage = svgCache.projectile;
+                playerProjectiles.forEach(projectile => {
+                    if (projectileImage) {
+                        ctx.drawImage(
+                            projectileImage, 
+                            projectile.x, 
+                            projectile.y, 
+                            projectile.width, 
+                            projectile.height
+                        );
+                    }
+                });
+                
+                // Draw enemy projectiles
+                const enemyProjectileImage = svgCache.enemyProjectile;
+                enemyProjectiles.forEach(projectile => {
+                    if (enemyProjectileImage) {
+                        ctx.drawImage(
+                            enemyProjectileImage, 
+                            projectile.x, 
+                            projectile.y, 
+                            projectile.width, 
+                            projectile.height
+                        );
+                    }
+                });
+                
+                // Draw power-ups
+                const powerUpImage = svgCache.powerUp;
+                powerUps.forEach(powerUp => {
+                    if (powerUpImage) {
+                        ctx.drawImage(
+                            powerUpImage, 
+                            powerUp.x, 
+                            powerUp.y, 
+                            powerUp.width, 
+                            powerUp.height
+                        );
+                    }
+                });
+                
+                // Draw defeated enemies
+                defeatedEnemies.forEach(enemy => {
+                    const enemyImage = svgCache[enemy.type + (enemy.isBoss ? 'Boss' : 'Enemy')];
+                    if (enemyImage) {
+                        // Draw trail
+                        enemy.trail.forEach(point => {
+                            ctx.save();
+                            ctx.globalAlpha = point.opacity * 0.5;
+                            ctx.beginPath();
+                            ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
+                            ctx.fillStyle = enemy.type === 'fed' ? '#000080' : '#444444';
+                            ctx.fill();
+                            ctx.restore();
+                        });
+                        
+                        // Draw spinning enemy
+                        ctx.save();
+                        ctx.globalAlpha = enemy.opacity;
+                        ctx.translate(
+                            enemy.x + enemy.width / 2, 
+                            enemy.y + enemy.height / 2
+                        );
+                        ctx.rotate(enemy.rotation * Math.PI / 180);
+                        
+                        // Apply squash and stretch effect
+                        const stretch = (1 + Math.sin(performance.now() / 100) * 0.1);
+                        ctx.scale(1 / stretch, stretch);
+                        
+                        ctx.drawImage(
+                            enemyImage, 
+                            -enemy.width / 2, 
+                            -enemy.height / 2, 
+                            enemy.width, 
+                            enemy.height
+                        );
+                        ctx.restore();
+                    }
+                });
+                
+                // Draw speech bubbles
+                speechBubbles.forEach(bubble => {
+                    drawSpeechBubble(bubble);
+                });
+                
+                // Draw HUD
+                if (gameState === 'playing') {
+                    // Draw score
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '24px "Press Start 2P"';
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'top';
+                    
+                    // Add text shadow for better visibility
+                    ctx.shadowColor = '#000000';
+                    ctx.shadowBlur = 5;
+                    ctx.shadowOffsetX = 2;
+                    ctx.shadowOffsetY = 2;
+                    
+                    ctx.fillText(`Score: ${score}`, 20, 20);
+                    
+                    // Draw level
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`Level ${level}`, canvas.width / 2, 20);
+                    
+                    // Draw lives
+                    ctx.textAlign = 'right';
+                    ctx.fillText(`Lives: ${lives}`, canvas.width - 20, 20);
+                    
+                    // Draw rapid fire indicator
+                    if (player.isRapidFire) {
+                        const remainingTime = (player.powerUpDuration - (performance.now() - player.rapidFireTime)) / 1000;
+                        ctx.textAlign = 'left';
+                        ctx.fillStyle = '#ffcc00';
+                        ctx.fillText(`Rapid Fire: ${remainingTime.toFixed(1)}s`, 20, 60);
+                    }
+                    
+                    // Reset shadow
+                    ctx.shadowColor = 'transparent';
+                    ctx.shadowBlur = 0;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 0;
+                }
+                
+                // Restore canvas if screen shake was applied
+                if (screenShake.timeLeft > 0) {
+                    ctx.restore();
+                }
+            }
+            
+            // Draw speech bubble with improved formatting
+            function drawSpeechBubble(bubble) {
+                if (!bubble.enemy) return;
+                
+                const fontSize = 16; // INCREASED
+                const lineHeight = fontSize * 1.5;
+                const padding = 15;
+                
+                // Calculate bubble dimensions
+                const bubbleWidth = bubble.width;
+                const bubbleHeight = bubble.height;
+                
+                // Calculate position to keep bubble within screen bounds
+                const targetX = bubble.enemy.x + bubble.enemy.width / 2;
+                const targetY = bubble.enemy.y;
+                
+                const bubbleX = Math.max(10, Math.min(targetX - bubbleWidth / 2, canvas.width - bubbleWidth - 10));
+                const bubbleY = Math.max(10, targetY - bubbleHeight - 15); // Leave space for pointer
+                
+                // Draw the main bubble rectangle
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                // Rounded rectangle for the bubble
+                ctx.moveTo(bubbleX + 10, bubbleY);
+                ctx.lineTo(bubbleX + bubbleWidth - 10, bubbleY);
+                ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY, bubbleX + bubbleWidth, bubbleY + 10);
+                ctx.lineTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight - 10);
+                ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight, bubbleX + bubbleWidth - 10, bubbleY + bubbleHeight);
+                
+                // This is where we connect to the pointer - no stroke here
+                const pointerBaseLeft = Math.max(bubbleX + 10, Math.min(targetX - 10, bubbleX + bubbleWidth - 20));
+                const pointerBaseRight = Math.max(bubbleX + 20, Math.min(targetX + 10, bubbleX + bubbleWidth - 10));
+                
+                ctx.lineTo(pointerBaseRight, bubbleY + bubbleHeight);
+                ctx.lineTo(targetX, targetY);
+                ctx.lineTo(pointerBaseLeft, bubbleY + bubbleHeight);
+                
+                // Continue with left side of bubble
+                ctx.lineTo(bubbleX + 10, bubbleY + bubbleHeight);
+                ctx.quadraticCurveTo(bubbleX, bubbleY + bubbleHeight, bubbleX, bubbleY + bubbleHeight - 10);
+                ctx.lineTo(bubbleX, bubbleY + 10);
+                ctx.quadraticCurveTo(bubbleX, bubbleY, bubbleX + 10, bubbleY);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Draw border (stroke) - only for the rounded rectangle, not for the pointer
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                
+                // Top edge
+                ctx.beginPath();
+                ctx.moveTo(bubbleX + 10, bubbleY);
+                ctx.lineTo(bubbleX + bubbleWidth - 10, bubbleY);
+                ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY, bubbleX + bubbleWidth, bubbleY + 10);
+                ctx.stroke();
+                
+                // Right edge
+                ctx.beginPath();
+                ctx.moveTo(bubbleX + bubbleWidth, bubbleY + 10);
+                ctx.lineTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight - 10);
+                ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight, bubbleX + bubbleWidth - 10, bubbleY + bubbleHeight);
+                ctx.stroke();
+                
+                // Bottom edge, but only the parts not connected to the pointer
+                ctx.beginPath();
+                ctx.moveTo(bubbleX + bubbleWidth - 10, bubbleY + bubbleHeight);
+                ctx.lineTo(pointerBaseRight, bubbleY + bubbleHeight);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(pointerBaseLeft, bubbleY + bubbleHeight);
+                ctx.lineTo(bubbleX + 10, bubbleY + bubbleHeight);
+                ctx.quadraticCurveTo(bubbleX, bubbleY + bubbleHeight, bubbleX, bubbleY + bubbleHeight - 10);
+                ctx.stroke();
+                
+                // Left edge
+                ctx.beginPath();
+                ctx.moveTo(bubbleX, bubbleY + bubbleHeight - 10);
+                ctx.lineTo(bubbleX, bubbleY + 10);
+                ctx.quadraticCurveTo(bubbleX, bubbleY, bubbleX + 10, bubbleY);
+                ctx.stroke();
+                
+                // Draw the pointer outline (the sides only, not where it connects to bubble)
+                ctx.beginPath();
+                ctx.moveTo(pointerBaseRight, bubbleY + bubbleHeight);
+                ctx.lineTo(targetX, targetY);
+                ctx.lineTo(pointerBaseLeft, bubbleY + bubbleHeight);
+                ctx.stroke();
+                
+                // Draw text
+                ctx.fillStyle = 'black';
+                ctx.font = `${fontSize}px "Press Start 2P"`;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                
+                // Draw each line of text
+                if (bubble.lines) {
+                    for (let i = 0; i < bubble.lines.length; i++) {
+                        ctx.fillText(
+                            bubble.lines[i], 
+                            bubbleX + padding, 
+                            bubbleY + padding + (i * lineHeight)
+                        );
+                    }
+                } else {
+                    // Fallback if lines not provided
+                    ctx.fillText(bubble.text, bubbleX + padding, bubbleY + padding);
+                }
+            }
+            
+            // Main game loop
+            function gameLoop(timestamp) {
+                // Calculate delta time
+                const deltaTime = timestamp - lastTime;
+                lastTime = timestamp;
+                
+                // Update game state
+                update(deltaTime);
+                
+                // Render game
+                render();
+                
+                // Continue game loop
+                requestAnimationFrame(gameLoop);
+            }
+            
+            // Start the game when the page loads
+            window.addEventListener('load', init);
+        })();
+    </script>
+</body>
+</html>
