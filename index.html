@@ -23,14 +23,51 @@
             overflow: hidden;
         }
 
+        #outer-container {
+            position: relative;
+            width: 100%;
+            max-width: 550px;
+            height: 100%;
+            max-height: 900px;
+            border: 4px solid #ffcc00;
+            background-color: #111;
+            padding: 10px;
+        }
+
         #game-container {
             position: relative;
             width: 100%;
-            max-width: 500px; /* More vertical aspect ratio */
-            height: 100%;
-            max-height: 800px; /* More vertical aspect ratio */
+            height: calc(100% - 80px); /* Leave room for HUD */
             margin: 0 auto;
-            border: 4px solid #333;
+            border: 2px solid #333;
+            overflow: hidden;
+        }
+
+        #hud-container {
+            position: relative;
+            width: 100%;
+            height: 70px;
+            padding: 5px 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid #333;
+            background-color: #222;
+        }
+
+        .hud-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .hud-section.right {
+            align-items: flex-end;
+        }
+
+        .hud-section.center {
+            align-items: center;
         }
 
         canvas {
@@ -50,13 +87,14 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.9);
             padding: 20px;
             text-align: center;
+            z-index: 100;
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
         button {
@@ -81,18 +119,18 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            margin-top: 30px;
+            margin-top: 20px;
         }
 
         .character-option {
             text-align: center;
             cursor: pointer;
-            padding: 20px;
+            padding: 15px;
             border: 4px solid #444;
             transition: all 0.3s;
             border-radius: 5px;
             background-color: rgba(50, 50, 50, 0.7);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             width: 80%;
         }
 
@@ -103,17 +141,17 @@
         }
 
         .character-svg {
-            width: 120px;
-            height: 140px;
-            margin: 0 auto 20px auto;
+            width: 100px;
+            height: 120px;
+            margin: 0 auto 15px auto;
             background-color: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 5px;
         }
 
         .character-option p {
-            margin-bottom: 15px;
-            font-size: 16px;
+            margin-bottom: 10px;
+            font-size: 14px;
             color: #ffcc00;
             text-shadow: 2px 2px 0 #000;
         }
@@ -174,10 +212,10 @@
         }
 
         .donation-panel {
-            margin-top: 30px;
+            margin-top: 20px;
             text-align: center;
-            font-size: 14px;
-            max-width: 350px;
+            font-size: 12px;
+            max-width: 320px;
             background-color: rgba(50, 50, 50, 0.7);
             padding: 15px;
             border-radius: 5px;
@@ -190,7 +228,7 @@
         }
 
         #level-message {
-            font-size: 22px;
+            font-size: 20px;
             color: #ffcc00;
             margin: 20px 0;
             text-shadow: 2px 2px 0 #000;
@@ -198,13 +236,37 @@
             text-align: center;
         }
 
+        #game-title {
+            font-size: 32px;
+            text-align: center;
+            color: #ffcc00;
+            text-shadow: 3px 3px #ff0000;
+            margin: 10px 0 5px 0;
+        }
+
+        #game-subtitle {
+            font-size: 12px;
+            text-align: center;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        #choose-character {
+            font-size: 18px;
+            text-align: center;
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+
         @media (max-width: 800px) {
-            #game-container {
+            #outer-container {
                 height: 100vh;
             }
             
             .mobile-controls {
-                display: block;
+                display: flex;
+                justify-content: space-between;
+                padding: 0 30px;
             }
             
             button {
@@ -217,72 +279,87 @@
             }
 
             .character-svg {
-                width: 100px;
-                height: 120px;
+                width: 80px;
+                height: 100px;
             }
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <canvas id="game-canvas"></canvas>
-        
-        <div id="start-screen" class="game-screen">
-            <h1>DOGE INVADERS</h1>
-            <p style="font-size: 18px; margin-bottom: 15px; color: #fff;">A politically satirical Space Invaders clone</p>
-            <p style="font-size: 24px; margin-bottom: 20px; color: #ffcc00;">Choose your character:</p>
-            <div class="character-selection">
-                <div class="character-option" id="fed-employee">
-                    <div class="character-svg" id="fed-svg"></div>
-                    <p>Fed Employee</p>
-                    <p>Defending stable government jobs</p>
-                </div>
-                <div class="character-option" id="doge-employee">
-                    <div class="character-svg" id="doge-svg"></div>
-                    <p>DOGE Employee</p>
-                    <p>Cutting government waste</p>
-                </div>
+    <div id="outer-container">
+        <div id="hud-container">
+            <div class="hud-section left">
+                <div id="score">SCORE: 0</div>
+                <div id="high-score">HIGH: 0</div>
+            </div>
+            <div class="hud-section center">
+                <div id="level">LEVEL: 1</div>
+                <div id="power-up" style="color: #ffcc00;"></div>
+            </div>
+            <div class="hud-section right">
+                <div id="lives">LIVES: 3</div>
+                <div id="sound-status">SOUND: ON</div>
             </div>
         </div>
         
-        <div id="game-over-screen" class="game-screen hidden">
-            <h1>GAME OVER</h1>
-            <p style="font-size: 24px; color: #ff0000; margin: 15px 0;">Final Score: <span id="final-score">0</span></p>
-            <p style="font-size: 20px; color: #ffcc00; margin-bottom: 20px;">High Score: <span id="high-score">0</span></p>
-            <button id="restart-button">Play Again</button>
-            <div class="donation-panel">
-                <p>Support our game:</p>
-                <p>DOGE: coming soon</p>
-                <p>BTC: coming soon</p>
+        <div id="game-container">
+            <canvas id="game-canvas"></canvas>
+            
+            <div id="start-screen" class="game-screen">
+                <div id="game-title">DOGE INVADERS</div>
+                <div id="game-subtitle">A politically satirical Space Invaders clone</div>
+                <div id="choose-character">Choose your character!</div>
+                <div class="character-selection">
+                    <div class="character-option" id="fed-employee">
+                        <div class="character-svg" id="fed-svg"></div>
+                        <p>Fed Employee</p>
+                        <p>Defending stable government jobs</p>
+                    </div>
+                    <div class="character-option" id="doge-employee">
+                        <div class="character-svg" id="doge-svg"></div>
+                        <p>DOGE Employee</p>
+                        <p>Cutting government waste</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="game-over-screen" class="game-screen hidden">
+                <h1>GAME OVER</h1>
+                <p style="font-size: 20px; color: #ff0000; margin: 15px 0;">Final Score: <span id="final-score">0</span></p>
+                <p style="font-size: 18px; color: #ffcc00; margin-bottom: 20px;">High Score: <span id="final-high-score">0</span></p>
+                <button id="restart-button">Play Again</button>
+                <div class="donation-panel">
+                    <p>Support our game:</p>
+                    <p>DOGE: Coming Soon...</p>
+                    <p>BTC: Coming Soon...</p>
+                </div>
+            </div>
+            
+            <div id="level-complete-screen" class="game-screen hidden">
+                <h1>LEVEL COMPLETE!</h1>
+                <p id="level-message"></p>
+                <button id="next-level-button">Next Level</button>
+            </div>
+            
+            <div class="mobile-controls">
+                <button id="left-button">&lt;</button>
+                <button id="fire-button">Fire</button>
+                <button id="right-button">&gt;</button>
             </div>
         </div>
-        
-        <div id="level-complete-screen" class="game-screen hidden">
-            <h1>LEVEL COMPLETE!</h1>
-            <p id="level-message"></p>
-            <button id="next-level-button">Next Level</button>
-        </div>
-        
-        <div class="mobile-controls">
-            <button id="left-button">&lt;</button>
-            <button id="right-button">&gt;</button>
-            <button id="fire-button">Fire</button>
-        </div>
-        
-        <div class="sound-toggle" id="sound-toggle"></div>
     </div>
 
     <script>
         (function() {
             // Constants and configuration
             const CANVAS_WIDTH = 500;
-            const CANVAS_HEIGHT = 800;
-            const PLAYER_WIDTH = 60;
+            const CANVAS_HEIGHT = 700;
+            const PLAYER_WIDTH = 50;
             const PLAYER_HEIGHT = 40;
-            const ENEMY_WIDTH = 50;
-            const ENEMY_HEIGHT = 40;
+            const ENEMY_WIDTH = 40;
+            const ENEMY_HEIGHT = 35;
             const PROJECTILE_WIDTH = 8;
-            const PROJECTILE_HEIGHT = 20;
+            const PROJECTILE_HEIGHT = 15;
             const ENEMY_ROWS = 4;
             const ENEMY_COLS = 6;
             const ENEMY_PADDING = 15;
@@ -427,67 +504,67 @@
                 "Saved $2,473,060 by terminating the lease in ATLANTA, GA for CENTER FOR DISEASE CONTROL."
             ];
             
-            // SVG definitions
+            // SVG definitions with improved pixel art styling
             const svgDefs = {
                 fedPlayer: `
-                    <svg viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="20" y="5" width="10" height="15" fill="#000080"/> <!-- Blue suit -->
-                        <rect x="20" y="5" width="10" height="5" fill="#ffffff"/> <!-- White shirt -->
-                        <rect x="23" y="5" width="4" height="15" fill="#ff0000"/> <!-- Red tie -->
-                        <circle cx="25" cy="0" r="5" fill="#ffcc99"/> <!-- Head -->
+                    <svg viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="12" y="20" width="6" height="15" fill="#000080"/> <!-- Blue suit -->
+                        <rect x="12" y="15" width="6" height="5" fill="#ffffff"/> <!-- White shirt -->
+                        <rect x="14" y="15" width="2" height="20" fill="#ff0000"/> <!-- Red tie -->
+                        <circle cx="15" cy="10" r="5" fill="#ffcc99"/> <!-- Head -->
                     </svg>
                 `,
                 dogePlayer: `
-                    <svg viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="20" y="5" width="10" height="15" fill="#444444"/> <!-- Dark clothing -->
-                        <circle cx="25" cy="0" r="5" fill="#ffcc99"/> <!-- Head -->
-                        <path d="M 20 0 L 30 0 L 25 -5 Z" fill="#000000"/> <!-- Black cap -->
+                    <svg viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="12" y="15" width="6" height="20" fill="#444444"/> <!-- Dark clothing -->
+                        <circle cx="15" cy="10" r="5" fill="#ffcc99"/> <!-- Head -->
+                        <path d="M 10 10 L 20 10 L 15 5 Z" fill="#000000"/> <!-- Black cap -->
                     </svg>
                 `,
                 fedEnemy: `
-                    <svg viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="15" y="5" width="10" height="15" fill="#000080"/> <!-- Blue suit -->
-                        <rect x="15" y="5" width="10" height="5" fill="#ffffff"/> <!-- White shirt -->
-                        <rect x="18" y="5" width="4" height="15" fill="#ff0000"/> <!-- Red tie -->
-                        <circle cx="20" cy="0" r="5" fill="#ffcc99"/> <!-- Head -->
+                    <svg viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="12" y="20" width="6" height="10" fill="#000080"/> <!-- Blue suit -->
+                        <rect x="12" y="15" width="6" height="5" fill="#ffffff"/> <!-- White shirt -->
+                        <rect x="14" y="15" width="2" height="15" fill="#ff0000"/> <!-- Red tie -->
+                        <circle cx="15" cy="10" r="5" fill="#ffcc99"/> <!-- Head -->
                     </svg>
                 `,
                 dogeEnemy: `
-                    <svg viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="15" y="5" width="10" height="15" fill="#444444"/> <!-- Dark clothing -->
-                        <circle cx="20" cy="0" r="5" fill="#ffcc99"/> <!-- Head -->
-                        <path d="M 15 0 L 25 0 L 20 -5 Z" fill="#aa0000"/> <!-- Red cap -->
+                    <svg viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="12" y="15" width="6" height="15" fill="#444444"/> <!-- Dark clothing -->
+                        <circle cx="15" cy="10" r="5" fill="#ffcc99"/> <!-- Head -->
+                        <path d="M 10 10 L 20 10 L 15 5 Z" fill="#aa0000"/> <!-- Red cap -->
                     </svg>
                 `,
                 fedBoss: `
-                    <svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="20" y="5" width="20" height="25" fill="#000080"/> <!-- Blue suit -->
-                        <rect x="20" y="5" width="20" height="8" fill="#ffffff"/> <!-- White shirt -->
-                        <rect x="28" y="5" width="4" height="25" fill="#ff0000"/> <!-- Red tie -->
-                        <circle cx="30" cy="0" r="8" fill="#ffcc99"/> <!-- Head -->
+                    <svg viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="15" y="20" width="10" height="20" fill="#000080"/> <!-- Blue suit -->
+                        <rect x="15" y="15" width="10" height="5" fill="#ffffff"/> <!-- White shirt -->
+                        <rect x="18" y="15" width="4" height="20" fill="#ff0000"/> <!-- Red tie -->
+                        <circle cx="20" cy="10" r="7" fill="#ffcc99"/> <!-- Head -->
                     </svg>
                 `,
                 dogeBoss: `
-                    <svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="20" y="5" width="20" height="25" fill="#444444"/> <!-- Dark clothing -->
-                        <circle cx="30" cy="0" r="8" fill="#ffcc99"/> <!-- Head -->
-                        <path d="M 22 0 L 38 0 L 30 -8 Z" fill="#aa0000"/> <!-- Red cap -->
+                    <svg viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="15" y="15" width="10" height="25" fill="#444444"/> <!-- Dark clothing -->
+                        <circle cx="20" cy="10" r="7" fill="#ffcc99"/> <!-- Head -->
+                        <path d="M 13 10 L 27 10 L 20 3 Z" fill="#aa0000"/> <!-- Red cap -->
                     </svg>
                 `,
                 projectile: `
-                    <svg viewBox="0 0 5 15" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="0" y="0" width="5" height="15" fill="#ffffff"/>
+                    <svg viewBox="0 0 10 15" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0" y="0" width="10" height="15" fill="#ffffff"/>
                     </svg>
                 `,
                 enemyProjectile: `
-                    <svg viewBox="0 0 5 15" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="0" y="0" width="5" height="15" fill="#ff0000"/>
+                    <svg viewBox="0 0 10 15" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0" y="0" width="10" height="15" fill="#ff0000"/>
                     </svg>
                 `,
                 powerUp: `
                     <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="15" cy="15" r="15" fill="#00ff00"/>
-                        <text x="15" y="20" font-size="20" text-anchor="middle" fill="#000">P</text>
+                        <text x="15" y="20" font-size="16" text-anchor="middle" fill="#000">P</text>
                     </svg>
                 `,
                 soundOn: `
@@ -530,14 +607,13 @@
                 document.getElementById('doge-employee').addEventListener('click', () => selectCharacter('doge'));
                 document.getElementById('restart-button').addEventListener('click', restartGame);
                 document.getElementById('next-level-button').addEventListener('click', startNextLevel);
-                document.getElementById('sound-toggle').addEventListener('click', toggleSound);
+                
+                // Set up sound toggle
+                document.getElementById('sound-status').addEventListener('click', toggleSound);
                 
                 // Set up character SVGs
                 document.getElementById('fed-svg').innerHTML = svgDefs.fedPlayer;
                 document.getElementById('doge-svg').innerHTML = svgDefs.dogePlayer;
-                
-                // Set up sound toggle
-                document.getElementById('sound-toggle').innerHTML = svgDefs.soundOn;
                 
                 // Set up keyboard controls
                 window.addEventListener('keydown', handleKeyDown);
@@ -777,9 +853,9 @@
                 }
             }
             
-            // Update sound toggle icon
+            // Update sound toggle status
             function updateSoundToggle() {
-                document.getElementById('sound-toggle').innerHTML = soundEnabled ? svgDefs.soundOn : svgDefs.soundOff;
+                document.getElementById('sound-status').textContent = soundEnabled ? "SOUND: ON" : "SOUND: OFF";
             }
             
             // Set game state and show/hide appropriate screens
@@ -796,7 +872,7 @@
                     document.getElementById('start-screen').classList.remove('hidden');
                 } else if (state === 'gameOver') {
                     document.getElementById('final-score').textContent = score;
-                    document.getElementById('high-score').textContent = getHighScore();
+                    document.getElementById('final-high-score').textContent = getHighScore();
                     document.getElementById('game-over-screen').classList.remove('hidden');
                     playGameOver();
                 } else if (state === 'levelComplete') {
@@ -860,9 +936,12 @@
                 
                 // Create enemy formation
                 createEnemies();
+                
+                // Update HUD
+                updateHUD();
             }
             
-            // Create enemy formation
+            // Create enemy formation - START LOWER DOWN
             function createEnemies() {
                 enemies = [];
                 
@@ -873,7 +952,7 @@
                 // Calculate starting position to center formation
                 const formationWidth = cols * (ENEMY_WIDTH + ENEMY_PADDING) - ENEMY_PADDING;
                 const startX = (canvas.width - formationWidth) / 2;
-                const startY = 70;
+                const startY = 120; // INCREASED - now starting lower
                 
                 for (let row = 0; row < rows; row++) {
                     for (let col = 0; col < cols; col++) {
@@ -884,7 +963,7 @@
                         const enemy = {
                             x: startX + col * (ENEMY_WIDTH + ENEMY_PADDING),
                             y: startY + row * (ENEMY_HEIGHT + ENEMY_PADDING),
-                            width: isBoss ? 70 : ENEMY_WIDTH,
+                            width: isBoss ? 60 : ENEMY_WIDTH,
                             height: isBoss ? 50 : ENEMY_HEIGHT,
                             health: isBoss ? 5 + Math.floor(level / 3) : 1,
                             type: enemyType,
@@ -953,7 +1032,8 @@
             
             // Load high score
             function loadHighScore() {
-                document.getElementById('high-score').textContent = getHighScore();
+                const highScore = getHighScore();
+                document.getElementById('high-score').textContent = `HIGH: ${highScore}`;
             }
             
             // Create player projectile
@@ -1092,9 +1172,9 @@
                 text = quote || text;
                 
                 // Calculate bubble dimensions based on text length
-                const maxWidth = 200;
-                const fontSize = 16; // INCREASED
-                const padding = 15;
+                const maxWidth = 180;
+                const fontSize = 12; // Slightly smaller
+                const padding = 12;
                 const lineHeight = fontSize * 1.5;
                 
                 // Measure text and wrap if needed
@@ -1128,7 +1208,8 @@
                     lines: lines,
                     enemy: enemy,
                     duration: enemy.isBoss ? 5000 : 4000,
-                    createdAt: performance.now()
+                    createdAt: performance.now(),
+                    position: enemy.y < 150 ? 'side' : 'top' // Position on side if near top
                 };
                 
                 speechBubbles.push(speechBubble);
@@ -1194,8 +1275,14 @@
                 
                 // Update rapid fire timer
                 if (player.isRapidFire) {
+                    const remainingTime = (player.powerUpDuration - (performance.now() - player.rapidFireTime)) / 1000;
+                    
+                    // Update HUD with power-up status
+                    document.getElementById('power-up').textContent = `RAPID: ${remainingTime.toFixed(1)}s`;
+                    
                     if (performance.now() - player.rapidFireTime > player.powerUpDuration) {
                         player.isRapidFire = false;
+                        document.getElementById('power-up').textContent = '';
                     }
                 }
             }
@@ -1295,6 +1382,9 @@
                             // Award points
                             score += enemy.isBoss ? 50 : 10;
                             
+                            // Update HUD
+                            updateHUD();
+                            
                             // If enemy is defeated
                             if (enemy.health <= 0) {
                                 createDefeatedEnemy(enemy);
@@ -1348,6 +1438,9 @@
                     if (checkCollision(projectile, player)) {
                         enemyProjectiles.splice(i, 1);
                         lives--;
+                        
+                        // Update HUD
+                        updateHUD();
                         
                         if (lives <= 0) {
                             saveHighScore();
@@ -1459,6 +1552,18 @@
                     // Decrease intensity over time
                     const progress = screenShake.timeLeft / screenShake.duration;
                     screenShake.intensity = screenShake.intensity * progress;
+                }
+            }
+            
+            // Update HUD display
+            function updateHUD() {
+                document.getElementById('score').textContent = `SCORE: ${score}`;
+                document.getElementById('level').textContent = `LEVEL: ${level}`;
+                document.getElementById('lives').textContent = `LIVES: ${lives}`;
+                
+                // Update high score if needed
+                if (score > getHighScore()) {
+                    document.getElementById('high-score').textContent = `HIGH: ${score}`;
                 }
             }
             
@@ -1614,73 +1719,76 @@
                     drawSpeechBubble(bubble);
                 });
                 
-                // Draw HUD
-                if (gameState === 'playing') {
-                    // Draw score
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = '24px "Press Start 2P"';
-                    ctx.textAlign = 'left';
-                    ctx.textBaseline = 'top';
-                    
-                    // Add text shadow for better visibility
-                    ctx.shadowColor = '#000000';
-                    ctx.shadowBlur = 5;
-                    ctx.shadowOffsetX = 2;
-                    ctx.shadowOffsetY = 2;
-                    
-                    ctx.fillText(`Score: ${score}`, 20, 20);
-                    
-                    // Draw level
-                    ctx.textAlign = 'center';
-                    ctx.fillText(`Level ${level}`, canvas.width / 2, 20);
-                    
-                    // Draw lives
-                    ctx.textAlign = 'right';
-                    ctx.fillText(`Lives: ${lives}`, canvas.width - 20, 20);
-                    
-                    // Draw rapid fire indicator
-                    if (player.isRapidFire) {
-                        const remainingTime = (player.powerUpDuration - (performance.now() - player.rapidFireTime)) / 1000;
-                        ctx.textAlign = 'left';
-                        ctx.fillStyle = '#ffcc00';
-                        ctx.fillText(`Rapid Fire: ${remainingTime.toFixed(1)}s`, 20, 60);
-                    }
-                    
-                    // Reset shadow
-                    ctx.shadowColor = 'transparent';
-                    ctx.shadowBlur = 0;
-                    ctx.shadowOffsetX = 0;
-                    ctx.shadowOffsetY = 0;
-                }
-                
                 // Restore canvas if screen shake was applied
                 if (screenShake.timeLeft > 0) {
                     ctx.restore();
                 }
             }
             
-            // Draw speech bubble with improved formatting
+            // Draw speech bubble with improved positioning
             function drawSpeechBubble(bubble) {
                 if (!bubble.enemy) return;
                 
-                const fontSize = 16; // INCREASED
+                const fontSize = 12;
                 const lineHeight = fontSize * 1.5;
-                const padding = 15;
+                const padding = 12;
                 
                 // Calculate bubble dimensions
                 const bubbleWidth = bubble.width;
                 const bubbleHeight = bubble.height;
                 
-                // Calculate position to keep bubble within screen bounds
-                const targetX = bubble.enemy.x + bubble.enemy.width / 2;
-                const targetY = bubble.enemy.y;
+                // Position bubble based on enemy position - either above or to the side
+                let bubbleX, bubbleY, pointerX, pointerY;
+                let pointerBaseLeft, pointerBaseRight;
                 
-                const bubbleX = Math.max(10, Math.min(targetX - bubbleWidth / 2, canvas.width - bubbleWidth - 10));
-                const bubbleY = Math.max(10, targetY - bubbleHeight - 15); // Leave space for pointer
+                if (bubble.position === 'side') {
+                    // Position to the side if enemy is near top
+                    bubbleX = bubble.enemy.x + bubble.enemy.width + 10;
+                    bubbleY = bubble.enemy.y;
+                    
+                    // If bubble would go off right edge, put it on left instead
+                    if (bubbleX + bubbleWidth > canvas.width - 10) {
+                        bubbleX = bubble.enemy.x - bubbleWidth - 10;
+                    }
+                    
+                    // Ensure bubble is at least partially on screen
+                    bubbleX = Math.max(10, Math.min(bubbleX, canvas.width - bubbleWidth - 10));
+                    bubbleY = Math.max(10, Math.min(bubbleY, canvas.height - bubbleHeight - 10));
+                    
+                    // Position pointer
+                    if (bubble.enemy.x > bubbleX + bubbleWidth) {
+                        // Pointer on right side of bubble
+                        pointerX = bubble.enemy.x;
+                        pointerY = bubble.enemy.y + bubble.enemy.height / 3;
+                        pointerBaseLeft = bubbleX + bubbleWidth;
+                        pointerBaseRight = bubbleX + bubbleWidth;
+                    } else {
+                        // Pointer on left side of bubble
+                        pointerX = bubble.enemy.x + bubble.enemy.width;
+                        pointerY = bubble.enemy.y + bubble.enemy.height / 3;
+                        pointerBaseLeft = bubbleX;
+                        pointerBaseRight = bubbleX;
+                    }
+                } else {
+                    // Position above enemy (default)
+                    bubbleX = bubble.enemy.x + bubble.enemy.width / 2 - bubbleWidth / 2;
+                    bubbleY = bubble.enemy.y - bubbleHeight - 15;
+                    
+                    // Ensure bubble is on screen
+                    bubbleX = Math.max(10, Math.min(bubbleX, canvas.width - bubbleWidth - 10));
+                    bubbleY = Math.max(10, bubbleY);
+                    
+                    // Position pointer
+                    pointerX = bubble.enemy.x + bubble.enemy.width / 2;
+                    pointerY = bubble.enemy.y;
+                    pointerBaseLeft = Math.max(bubbleX + 10, Math.min(pointerX - 10, bubbleX + bubbleWidth - 20));
+                    pointerBaseRight = Math.max(bubbleX + 20, Math.min(pointerX + 10, bubbleX + bubbleWidth - 10));
+                }
                 
                 // Draw the main bubble rectangle
                 ctx.fillStyle = 'white';
                 ctx.beginPath();
+                
                 // Rounded rectangle for the bubble
                 ctx.moveTo(bubbleX + 10, bubbleY);
                 ctx.lineTo(bubbleX + bubbleWidth - 10, bubbleY);
@@ -1688,65 +1796,169 @@
                 ctx.lineTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight - 10);
                 ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight, bubbleX + bubbleWidth - 10, bubbleY + bubbleHeight);
                 
-                // This is where we connect to the pointer - no stroke here
-                const pointerBaseLeft = Math.max(bubbleX + 10, Math.min(targetX - 10, bubbleX + bubbleWidth - 20));
-                const pointerBaseRight = Math.max(bubbleX + 20, Math.min(targetX + 10, bubbleX + bubbleWidth - 10));
+                if (bubble.position === 'side') {
+                    // Side positioning - pointer on left or right side
+                    if (pointerBaseLeft === bubbleX) {
+                        // Pointer on left side
+                        ctx.lineTo(bubbleX + 10, bubbleY + bubbleHeight);
+                        ctx.quadraticCurveTo(bubbleX, bubbleY + bubbleHeight, bubbleX, bubbleY + bubbleHeight - 10);
+                        ctx.lineTo(bubbleX, bubbleY + (bubbleHeight * 0.75));
+                        ctx.lineTo(pointerX, pointerY);
+                        ctx.lineTo(bubbleX, bubbleY + (bubbleHeight * 0.25));
+                        ctx.lineTo(bubbleX, bubbleY + 10);
+                    } else {
+                        // Pointer on right side
+                        ctx.lineTo(bubbleX + 10, bubbleY + bubbleHeight);
+                        ctx.quadraticCurveTo(bubbleX, bubbleY + bubbleHeight, bubbleX, bubbleY + bubbleHeight - 10);
+                        ctx.lineTo(bubbleX, bubbleY + 10);
+                        ctx.quadraticCurveTo(bubbleX, bubbleY, bubbleX + 10, bubbleY);
+                        ctx.closePath();
+                        
+                        // Draw the pointer separately
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.moveTo(bubbleX + bubbleWidth, bubbleY + (bubbleHeight * 0.25));
+                        ctx.lineTo(pointerX, pointerY);
+                        ctx.lineTo(bubbleX + bubbleWidth, bubbleY + (bubbleHeight * 0.75));
+                    }
+                } else {
+                    // Top positioning (default) - pointer on bottom
+                    ctx.lineTo(pointerBaseRight, bubbleY + bubbleHeight);
+                    ctx.lineTo(pointerX, pointerY);
+                    ctx.lineTo(pointerBaseLeft, bubbleY + bubbleHeight);
+                    ctx.lineTo(bubbleX + 10, bubbleY + bubbleHeight);
+                }
                 
-                ctx.lineTo(pointerBaseRight, bubbleY + bubbleHeight);
-                ctx.lineTo(targetX, targetY);
-                ctx.lineTo(pointerBaseLeft, bubbleY + bubbleHeight);
+                // Complete the path if not already closed
+                if (!(bubble.position === 'side' && pointerBaseLeft === bubbleX)) {
+                    ctx.quadraticCurveTo(bubbleX, bubbleY + bubbleHeight, bubbleX, bubbleY + bubbleHeight - 10);
+                    ctx.lineTo(bubbleX, bubbleY + 10);
+                }
                 
-                // Continue with left side of bubble
-                ctx.lineTo(bubbleX + 10, bubbleY + bubbleHeight);
-                ctx.quadraticCurveTo(bubbleX, bubbleY + bubbleHeight, bubbleX, bubbleY + bubbleHeight - 10);
-                ctx.lineTo(bubbleX, bubbleY + 10);
                 ctx.quadraticCurveTo(bubbleX, bubbleY, bubbleX + 10, bubbleY);
                 ctx.closePath();
                 ctx.fill();
                 
-                // Draw border (stroke) - only for the rounded rectangle, not for the pointer
+                // Draw border (stroke) - but not on the pointer
                 ctx.strokeStyle = 'black';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1.5;
                 
-                // Top edge
-                ctx.beginPath();
-                ctx.moveTo(bubbleX + 10, bubbleY);
-                ctx.lineTo(bubbleX + bubbleWidth - 10, bubbleY);
-                ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY, bubbleX + bubbleWidth, bubbleY + 10);
-                ctx.stroke();
-                
-                // Right edge
-                ctx.beginPath();
-                ctx.moveTo(bubbleX + bubbleWidth, bubbleY + 10);
-                ctx.lineTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight - 10);
-                ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight, bubbleX + bubbleWidth - 10, bubbleY + bubbleHeight);
-                ctx.stroke();
-                
-                // Bottom edge, but only the parts not connected to the pointer
-                ctx.beginPath();
-                ctx.moveTo(bubbleX + bubbleWidth - 10, bubbleY + bubbleHeight);
-                ctx.lineTo(pointerBaseRight, bubbleY + bubbleHeight);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(pointerBaseLeft, bubbleY + bubbleHeight);
-                ctx.lineTo(bubbleX + 10, bubbleY + bubbleHeight);
-                ctx.quadraticCurveTo(bubbleX, bubbleY + bubbleHeight, bubbleX, bubbleY + bubbleHeight - 10);
-                ctx.stroke();
-                
-                // Left edge
-                ctx.beginPath();
-                ctx.moveTo(bubbleX, bubbleY + bubbleHeight - 10);
-                ctx.lineTo(bubbleX, bubbleY + 10);
-                ctx.quadraticCurveTo(bubbleX, bubbleY, bubbleX + 10, bubbleY);
-                ctx.stroke();
-                
-                // Draw the pointer outline (the sides only, not where it connects to bubble)
-                ctx.beginPath();
-                ctx.moveTo(pointerBaseRight, bubbleY + bubbleHeight);
-                ctx.lineTo(targetX, targetY);
-                ctx.lineTo(pointerBaseLeft, bubbleY + bubbleHeight);
-                ctx.stroke();
+                if (bubble.position === 'side') {
+                    if (pointerBaseLeft === bubbleX) {
+                        // Left side pointer
+                        // Top edge
+                        ctx.beginPath();
+                        ctx.moveTo(bubbleX, bubbleY + 10);
+                        ctx.quadraticCurveTo(bubbleX, bubbleY, bubbleX + 10, bubbleY);
+                        ctx.lineTo(bubbleX + bubbleWidth - 10, bubbleY);
+                        ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY, bubbleX + bubbleWidth, bubbleY + 10);
+                        ctx.stroke();
+                        
+                        // Right edge
+                        ctx.beginPath();
+                        ctx.moveTo(bubbleX + bubbleWidth, bubbleY + 10);
+                        ctx.lineTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight - 10);
+                        ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight, bubbleX + bubbleWidth - 10, bubbleY + bubbleHeight);
+                        ctx.stroke();
+                        
+                        // Bottom edge
+                        ctx.beginPath();
+                        ctx.moveTo(bubbleX + bubbleWidth - 10, bubbleY + bubbleHeight);
+                        ctx.lineTo(bubbleX + 10, bubbleY + bubbleHeight);
+                        ctx.quadraticCurveTo(bubbleX, bubbleY + bubbleHeight, bubbleX, bubbleY + bubbleHeight - 10);
+                        ctx.stroke();
+                        
+                        // Left edges (around pointer)
+                        ctx.beginPath();
+                        ctx.moveTo(bubbleX, bubbleY + bubbleHeight - 10);
+                        ctx.lineTo(bubbleX, bubbleY + (bubbleHeight * 0.75));
+                        ctx.stroke();
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(bubbleX, bubbleY + (bubbleHeight * 0.25));
+                        ctx.lineTo(bubbleX, bubbleY + 10);
+                        ctx.stroke();
+                        
+                        // Pointer edges
+                        ctx.beginPath();
+                        ctx.moveTo(bubbleX, bubbleY + (bubbleHeight * 0.75));
+                        ctx.lineTo(pointerX, pointerY);
+                        ctx.lineTo(bubbleX, bubbleY + (bubbleHeight * 0.25));
+                        ctx.stroke();
+                    } else {
+                        // Right side pointer
+                        // Left & top edges
+                        ctx.beginPath();
+                        ctx.moveTo(bubbleX, bubbleY + 10);
+                        ctx.lineTo(bubbleX, bubbleY + bubbleHeight - 10);
+                        ctx.quadraticCurveTo(bubbleX, bubbleY + bubbleHeight, bubbleX + 10, bubbleY + bubbleHeight);
+                        ctx.lineTo(bubbleX + bubbleWidth - 10, bubbleY + bubbleHeight);
+                        ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight, bubbleX + bubbleWidth, bubbleY + bubbleHeight - 10);
+                        ctx.stroke();
+                        
+                        // Right edges (around pointer)
+                        ctx.beginPath();
+                        ctx.moveTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight - 10);
+                        ctx.lineTo(bubbleX + bubbleWidth, bubbleY + (bubbleHeight * 0.75));
+                        ctx.stroke();
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(bubbleX + bubbleWidth, bubbleY + (bubbleHeight * 0.25));
+                        ctx.lineTo(bubbleX + bubbleWidth, bubbleY + 10);
+                        ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY, bubbleX + bubbleWidth - 10, bubbleY);
+                        ctx.lineTo(bubbleX + 10, bubbleY);
+                        ctx.quadraticCurveTo(bubbleX, bubbleY, bubbleX, bubbleY + 10);
+                        ctx.stroke();
+                        
+                        // Pointer edges
+                        ctx.beginPath();
+                        ctx.moveTo(bubbleX + bubbleWidth, bubbleY + (bubbleHeight * 0.75));
+                        ctx.lineTo(pointerX, pointerY);
+                        ctx.lineTo(bubbleX + bubbleWidth, bubbleY + (bubbleHeight * 0.25));
+                        ctx.stroke();
+                    }
+                } else {
+                    // Top positioning - standard bubble
+                    // Top edge
+                    ctx.beginPath();
+                    ctx.moveTo(bubbleX + 10, bubbleY);
+                    ctx.lineTo(bubbleX + bubbleWidth - 10, bubbleY);
+                    ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY, bubbleX + bubbleWidth, bubbleY + 10);
+                    ctx.stroke();
+                    
+                    // Right edge
+                    ctx.beginPath();
+                    ctx.moveTo(bubbleX + bubbleWidth, bubbleY + 10);
+                    ctx.lineTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight - 10);
+                    ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight, bubbleX + bubbleWidth - 10, bubbleY + bubbleHeight);
+                    ctx.stroke();
+                    
+                    // Bottom edges (around pointer)
+                    ctx.beginPath();
+                    ctx.moveTo(bubbleX + bubbleWidth - 10, bubbleY + bubbleHeight);
+                    ctx.lineTo(pointerBaseRight, bubbleY + bubbleHeight);
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(pointerBaseLeft, bubbleY + bubbleHeight);
+                    ctx.lineTo(bubbleX + 10, bubbleY + bubbleHeight);
+                    ctx.quadraticCurveTo(bubbleX, bubbleY + bubbleHeight, bubbleX, bubbleY + bubbleHeight - 10);
+                    ctx.stroke();
+                    
+                    // Left edge
+                    ctx.beginPath();
+                    ctx.moveTo(bubbleX, bubbleY + bubbleHeight - 10);
+                    ctx.lineTo(bubbleX, bubbleY + 10);
+                    ctx.quadraticCurveTo(bubbleX, bubbleY, bubbleX + 10, bubbleY);
+                    ctx.stroke();
+                    
+                    // Pointer edges
+                    ctx.beginPath();
+                    ctx.moveTo(pointerBaseRight, bubbleY + bubbleHeight);
+                    ctx.lineTo(pointerX, pointerY);
+                    ctx.lineTo(pointerBaseLeft, bubbleY + bubbleHeight);
+                    ctx.stroke();
+                }
                 
                 // Draw text
                 ctx.fillStyle = 'black';
