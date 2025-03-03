@@ -3,7 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOGE Invaders</title>
+    <title>DOGE Invaders | Political Satire Space Invaders Game</title>
+    <meta name="description" content="Play DOGE Invaders, a politically satirical Space Invaders clone where you battle government waste or defend federal jobs.">
+    <meta name="keywords" content="space invaders, political game, satire game, DOGE, government, browser game, HTML5 game, javascript game">
+    
+    <!-- Favicon -->
+    <!-- <link rel="icon" type="image/png" href="favicon.png"> -->
+    
+    <!-- Open Graph tags for social media sharing -->
+    <meta property="og:title" content="DOGE Invaders | Political Satire Game">
+    <meta property="og:description" content="A politically satirical Space Invaders clone where bureaucracy meets budget cuts in an epic battle.">
+    <meta property="og:url" content="https://DOGEInvaders.com/">
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter Card tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DOGE Invaders | Political Satire Game">
+    <meta name="twitter:description" content="A politically satirical Space Invaders clone where bureaucracy meets budget cuts in an epic battle.">
+    <meta name="twitter:image" content="https://yourdomain.com/doge-invaders-preview.jpg">
+    
+    <!-- Canonical URL to prevent duplicate content issues -->
+    <link rel="canonical" href="https://yourdomain.com/doge-invaders">
+    
+    <!-- Structured data for rich results -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "name": "DOGE Invaders",
+      "description": "A politically satirical Space Invaders clone where bureaucracy meets budget cuts.",
+      "genre": ["Arcade", "Political Satire"],
+      "gamePlatform": "Web Browser",
+      "applicationCategory": "Game",
+      "operatingSystem": "Any",
+    }
+    </script>
+	
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         * {
@@ -163,42 +198,43 @@
             text-shadow: 3px 3px 0 #ff0000;
         }
 
-        .mobile-controls {
+        #mobile-controls-container {
             position: absolute;
             bottom: 0;
+            left: 0;
             width: 100%;
-            height: 33%;
+            height: 90px; /* Increased height for buttons */
+            background-color: rgba(0, 0, 0, 0.5);
             display: none;
+            z-index: 50;
         }
 
-        .mobile-controls button {
-            position: absolute;
-            bottom: 30px;
-            width: 80px;
-            height: 80px;
+        #mobile-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            height: 100%;
+        }
+
+        .mobile-btn {
+            width: 60px;
+            height: 60px;
             background-color: rgba(255, 0, 0, 0.5);
             border-radius: 50%;
-            border: 4px solid #fff;
-            font-size: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 24px;
+            color: white;
+            border: 3px solid white;
+            user-select: none;
         }
 
-        .mobile-controls button:active {
-            background-color: rgba(255, 0, 0, 0.8);
-        }
-
-        #left-button {
-            left: 30px;
-        }
-
-        #right-button {
-            left: 130px;
-        }
-
-        #fire-button {
-            right: 30px;
+        .fire-btn {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(255, 204, 0, 0.5);
         }
 
         .sound-toggle {
@@ -258,15 +294,49 @@
             margin-bottom: 10px;
         }
 
+        #sound-setup-prompt {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        #sound-setup-prompt p {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #fff;
+        }
+        
+        #sound-setup-button {
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
         @media (max-width: 800px) {
             #outer-container {
                 height: 100vh;
             }
             
-            .mobile-controls {
-                display: flex;
-                justify-content: space-between;
-                padding: 0 30px;
+            #mobile-controls-container {
+                display: block;
+            }
+            
+            #game-container {
+                height: calc(100% - 80px - 90px); /* Adjust for HUD and controls */
             }
             
             button {
@@ -281,6 +351,10 @@
             .character-svg {
                 width: 80px;
                 height: 100px;
+            }
+            
+            .hud-section {
+                font-size: 10px;
             }
         }
     </style>
@@ -330,8 +404,7 @@
                 <button id="restart-button">Play Again</button>
                 <div class="donation-panel">
                     <p>Support our game:</p>
-                    <p>DOGE: Coming Soon...</p>
-                    <p>BTC: Coming Soon...</p>
+                    <p>DOGE: DF37E3ZGVB5xuMAr8yEJVCjoHrh9iJxwUa</p>
                 </div>
             </div>
             
@@ -340,13 +413,21 @@
                 <p id="level-message"></p>
                 <button id="next-level-button">Next Level</button>
             </div>
-            
-            <div class="mobile-controls">
-                <button id="left-button">&lt;</button>
-                <button id="fire-button">Fire</button>
-                <button id="right-button">&gt;</button>
+        </div>
+        
+        <div id="mobile-controls-container">
+            <div id="mobile-controls">
+                <div class="mobile-btn" id="left-btn">◀</div>
+                <div class="mobile-btn fire-btn" id="fire-btn">FIRE</div>
+                <div class="mobile-btn" id="right-btn">▶</div>
             </div>
         </div>
+    </div>
+
+    <!-- Sound setup prompt for mobile -->
+    <div id="sound-setup-prompt" class="hidden">
+        <p>Tap the button below to enable game sounds</p>
+        <button id="sound-setup-button">ENABLE SOUND</button>
     </div>
 
     <script>
@@ -374,6 +455,7 @@
             let characterType = '';
             let isMobile = false;
             let soundEnabled = true;
+            let soundInitialized = false;
             
             // Player state
             let player = {
@@ -424,6 +506,10 @@
                 fire: false
             };
             
+            // Audio context and sounds
+            let audioContext;
+            let audioInitialized = false;
+            
             // Quote databases
             const fedLevelMessages = [
                 "I think I'll buy that starter home in DC!",
@@ -444,21 +530,15 @@
                 "Can't wait for my annual pay increase!",
                 "Protecting my pension is important!",
                 "Working for the people feels great!",
-                "Maybe I'll transfer to a cushy office job!",
                 "I'm making a difference... slowly but surely!"
             ];
 
             const fedBossQuotes = [
-                "We're going to keep on finding every possible way that we can do that even if Congress is not acting.",
-                "The agencies will continue to develop tools, provide technical assistance, participate in FLW events, coordinate voluntary programs, and engage in policy discussions.",
-                "Our agency is committed to reducing waste and improving efficiency in our operations.",
-                "We are taking steps to minimize our environmental footprint and save tax money.",
-                "Efficiency is a priority for us, and we are making progress every day.",
-                "We're working to make sure every dollar is spent wisely and effectively.",
-                "Our programs are designed to be as efficient as possible, with regular reviews to cut waste.",
-                "We've implemented new technologies to streamline our operations and reduce costs.",
-                "Through better management practices, we've been able to save millions of dollars.",
-                "We're proud of our efforts to be good stewards of public funds."
+                "The national parks will close down.",
+                "Who will operate NASA?",
+                "Cancer research is in jeopardy.",
+                "Who will inspect meat processing facilities?",
+                "I have a family!"
             ];
 
             const fedEnemyQuotes = [
@@ -470,16 +550,14 @@
             ];
 
             const dogeBossQuotes = [
-                "The existing system fails to safeguard tax dollars or promote merit among contractors and grant recipients.",
-                "We do have an opportunity to do a once-in-a-lifetime deregulation and reduction in the size of government.",
-                "Being a defense hawk and a budget hawk are not mutually exclusive.",
-                "Failure is an option here. If things are not failing, you are not innovating enough.",
-                "The path to the CEO's office should not be through the CFO's office, and it should not be through the marketing department. It needs to be through engineering and design.",
-                "We need to make sure that every dollar spent is for the benefit of the American people, not for wasteful projects.",
-                "Efficiency in government is not just about cutting costs; it's about delivering better services with fewer resources.",
-                "I believe in a lean government that focuses on core functions and eliminates unnecessary bureaucracy.",
-                "Transparency is key; the public has a right to know how their money is being spent.",
-                "We must root out waste, fraud, and abuse in all forms to restore trust in government."
+                "The existing system fails to safeguard tax dollars.",
+                "This is once-in-a-lifetime deregulation event.",
+                "If things are not failing, you are not innovating enough.",
+                "The path to the CEO's office should be through engineering and design.",
+                "Efficiency is about delivering better services with fewer resources.",
+                "Lean government that focuses on core functions.",
+                "The public has a right to know how their money is being spent.",
+                "We must root out waste, fraud, and abuse."
             ];
 
             const dogeEnemyQuotes = [
@@ -508,52 +586,84 @@
             const svgDefs = {
                 fedPlayer: `
                     <svg viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="12" y="20" width="6" height="15" fill="#000080"/> <!-- Blue suit -->
-                        <rect x="12" y="15" width="6" height="5" fill="#ffffff"/> <!-- White shirt -->
-                        <rect x="14" y="15" width="2" height="20" fill="#ff0000"/> <!-- Red tie -->
-                        <circle cx="15" cy="10" r="5" fill="#ffcc99"/> <!-- Head -->
+                        <rect x="10" y="22" width="10" height="8" fill="#000080" />
+                        <rect x="7" y="10" width="16" height="12" fill="#000080" />
+                        <rect x="11" y="10" width="8" height="12" fill="#ffffff" />
+                        <rect x="14.5" y="10" width="1" height="12" fill="#ff0000" />
+                        <circle cx="15" cy="7" r="4" fill="#ffcc99" />
                     </svg>
                 `,
                 dogePlayer: `
                     <svg viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="12" y="15" width="6" height="20" fill="#444444"/> <!-- Dark clothing -->
-                        <circle cx="15" cy="10" r="5" fill="#ffcc99"/> <!-- Head -->
-                        <path d="M 10 10 L 20 10 L 15 5 Z" fill="#000000"/> <!-- Black cap -->
+                        <circle cx="15" cy="11" r="4" fill="#ffcc99" />
+                        <rect x="10" y="11" width="10" height="13" fill="#444" />
+                        <rect x="10" y="24" width="10" height="6" fill="#444" />
+                        <rect x="10" y="7" width="10" height="3" fill="#000" />
+                        <rect x="11" y="4" width="8" height="3" fill="#000" />
+                        <path d="M11 7 L14 9 L17 7" fill="none" stroke="#fff" stroke-width="0.5" />
                     </svg>
                 `,
                 fedEnemy: `
                     <svg viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="12" y="20" width="6" height="10" fill="#000080"/> <!-- Blue suit -->
-                        <rect x="12" y="15" width="6" height="5" fill="#ffffff"/> <!-- White shirt -->
-                        <rect x="14" y="15" width="2" height="15" fill="#ff0000"/> <!-- Red tie -->
-                        <circle cx="15" cy="10" r="5" fill="#ffcc99"/> <!-- Head -->
+                        <rect x="5" y="16" width="15" height="10" fill="#000080" />
+                        <rect x="2" y="6" width="21" height="10" fill="#000080" />
+                        <rect x="7" y="6" width="11" height="10" fill="#ffffff" />
+                        <rect x="12" y="6" width="1" height="10" fill="#ff0000" />
+                        <circle cx="12.5" cy="3" r="3" fill="#ffcc99" />
                     </svg>
                 `,
                 dogeEnemy: `
                     <svg viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="12" y="15" width="6" height="15" fill="#444444"/> <!-- Dark clothing -->
-                        <circle cx="15" cy="10" r="5" fill="#ffcc99"/> <!-- Head -->
-                        <path d="M 10 10 L 20 10 L 15 5 Z" fill="#aa0000"/> <!-- Red cap -->
+                        <circle cx="12.5" cy="7" r="4" fill="#ffcc99" />
+                        <rect x="7.5" y="7" width="10" height="13" fill="#444" />
+                        <rect x="7.5" y="20" width="10" height="5" fill="#444" />
+                        <rect x="7.5" y="3" width="10" height="3" fill="#aa0000" />
+                        <rect x="8.5" y="0" width="8" height="3" fill="#aa0000" />
+                        <path d="M8.5 3 L11.5 5 L14.5 3" fill="none" stroke="#fff" stroke-width="0.5" />
                     </svg>
                 `,
                 fedBoss: `
                     <svg viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="15" y="20" width="10" height="20" fill="#000080"/> <!-- Blue suit -->
-                        <rect x="15" y="15" width="10" height="5" fill="#ffffff"/> <!-- White shirt -->
-                        <rect x="18" y="15" width="4" height="20" fill="#ff0000"/> <!-- Red tie -->
-                        <circle cx="20" cy="10" r="7" fill="#ffcc99"/> <!-- Head -->
+                        <rect x="10" y="26" width="20" height="16" fill="#000080" />
+                        <rect x="4" y="10" width="32" height="16" fill="#000080" />
+                        <rect x="12" y="10" width="16" height="16" fill="#ffffff" />
+                        <rect x="19.5" y="10" width="1" height="16" fill="#ff0000" />
+                        <circle cx="20" cy="6" r="6" fill="#ffcc99" />
+                        <path d="M14,2 Q20,-2 26,2 L26,6 L14,6 Z" fill="#8B4513" />
                     </svg>
                 `,
                 dogeBoss: `
                     <svg viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="15" y="15" width="10" height="25" fill="#444444"/> <!-- Dark clothing -->
-                        <circle cx="20" cy="10" r="7" fill="#ffcc99"/> <!-- Head -->
-                        <path d="M 13 10 L 27 10 L 20 3 Z" fill="#aa0000"/> <!-- Red cap -->
+                        <circle cx="20" cy="14" r="8" fill="#ffcc99" />
+                        <rect x="10" y="14" width="20" height="26" fill="#444" />
+                        <rect x="10" y="40" width="20" height="10" fill="#444" />
+                        <rect x="10" y="6" width="20" height="6" fill="#aa0000" />
+                        <rect x="12" y="0" width="16" height="6" fill="#aa0000" />
+                        <path d="M12 6 L20 10 L28 6" fill="none" stroke="#fff" stroke-width="1" />
                     </svg>
                 `,
-                projectile: `
+                projectileGavel: `
                     <svg viewBox="0 0 10 15" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="0" y="0" width="10" height="15" fill="#ffffff"/>
+                        <rect x="3.5" y="8" width="3" height="7" fill="#8B4513"/> <!-- Handle -->
+                        <rect x="2" y="5" width="6" height="3" fill="#8B4513"/> <!-- Head -->
+                        <rect x="1" y="3" width="8" height="2" fill="#dda15e"/> <!-- Wood block -->
+                    </svg>
+                `,
+                projectilePaper: `
+                    <svg viewBox="0 0 10 15" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="1" y="1" width="8" height="12" fill="#ffffff"/> <!-- Paper -->
+                        <path d="M1,1 L9,1 L9,13 L1,13 Z" stroke="#000" stroke-width="0.5" fill="none"/> <!-- Border -->
+                        <line x1="2" y1="3" x2="8" y2="3" stroke="#000" stroke-width="0.5"/> <!-- Line 1 -->
+                        <line x1="2" y1="5" x2="8" y2="5" stroke="#000" stroke-width="0.5"/> <!-- Line 2 -->
+                        <line x1="2" y1="7" x2="8" y2="7" stroke="#000" stroke-width="0.5"/> <!-- Line 3 -->
+                        <line x1="2" y1="9" x2="8" y2="9" stroke="#000" stroke-width="0.5"/> <!-- Line 4 -->
+                        <line x1="2" y1="11" x2="6" y2="11" stroke="#000" stroke-width="0.5"/> <!-- Line 5 -->
+                    </svg>
+                `,
+                projectileDollar: `
+                    <svg viewBox="0 0 10 15" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="5" cy="7.5" r="6" fill="#4CAF50"/> <!-- Green background -->
+                        <text x="5" y="11" font-family="Arial" font-size="10" font-weight="bold" text-anchor="middle" fill="#fff">$</text>
                     </svg>
                 `,
                 enemyProjectile: `
@@ -586,10 +696,6 @@
             // SVG cache for better performance
             const svgCache = {};
             
-            // Audio context and sounds
-            let audioContext;
-            let audioInitialized = false;
-            
             // Initialize the game
             function init() {
                 canvas = document.getElementById('game-canvas');
@@ -600,7 +706,7 @@
                 canvas.height = CANVAS_HEIGHT;
                 
                 // Check if on mobile
-                isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 800;
+                checkMobile();
                 
                 // Set up event listeners
                 document.getElementById('fed-employee').addEventListener('click', () => selectCharacter('fed'));
@@ -611,6 +717,9 @@
                 // Set up sound toggle
                 document.getElementById('sound-status').addEventListener('click', toggleSound);
                 
+                // Set up sound setup for mobile
+                document.getElementById('sound-setup-button').addEventListener('click', setupSoundForMobile);
+                
                 // Set up character SVGs
                 document.getElementById('fed-svg').innerHTML = svgDefs.fedPlayer;
                 document.getElementById('doge-svg').innerHTML = svgDefs.dogePlayer;
@@ -620,20 +729,72 @@
                 window.addEventListener('keyup', handleKeyUp);
                 
                 // Set up mobile controls
-                if (isMobile) {
-                    document.getElementById('left-button').addEventListener('touchstart', () => { keys.left = true; });
-                    document.getElementById('left-button').addEventListener('touchend', () => { keys.left = false; });
-                    document.getElementById('right-button').addEventListener('touchstart', () => { keys.right = true; });
-                    document.getElementById('right-button').addEventListener('touchend', () => { keys.right = false; });
-                    document.getElementById('fire-button').addEventListener('touchstart', () => { keys.fire = true; });
-                    document.getElementById('fire-button').addEventListener('touchend', () => { keys.fire = false; });
-                }
+                setupMobileControls();
                 
                 // Initialize SVG cache for better performance
                 initSVGCache();
                 
                 // Load high score
                 loadHighScore();
+                
+                // Show sound prompt on mobile
+                if (isMobile) {
+                    document.getElementById('sound-setup-prompt').classList.remove('hidden');
+                } else {
+                    // Show start screen immediately on desktop
+                    setGameState('start');
+                }
+            }
+            
+            function checkMobile() {
+                isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 800;
+            }
+            
+            function setupMobileControls() {
+                if (!isMobile) return;
+                
+                const leftBtn = document.getElementById('left-btn');
+                const rightBtn = document.getElementById('right-btn');
+                const fireBtn = document.getElementById('fire-btn');
+                
+                // Use touch events for mobile controls
+                leftBtn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    keys.left = true;
+                });
+                
+                leftBtn.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    keys.left = false;
+                });
+                
+                rightBtn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    keys.right = true;
+                });
+                
+                rightBtn.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    keys.right = false;
+                });
+                
+                fireBtn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    keys.fire = true;
+                });
+                
+                fireBtn.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    keys.fire = false;
+                });
+            }
+            
+            function setupSoundForMobile() {
+                // Initialize sound on direct user interaction
+                initAudio();
+                
+                // Hide the sound setup prompt
+                document.getElementById('sound-setup-prompt').classList.add('hidden');
                 
                 // Show start screen
                 setGameState('start');
@@ -665,11 +826,20 @@
                     if (AudioContext) {
                         audioContext = new AudioContext();
                         
+                        // Resume audio context (needed for mobile)
+                        if (audioContext.state === 'suspended') {
+                            audioContext.resume();
+                        }
+                        
                         // Load sound preferences
                         soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
                         updateSoundToggle();
                         
+                        // Test sound to ensure audio is working
+                        playTestSound();
+                        
                         audioInitialized = true;
+                        soundInitialized = true;
                         return true;
                     }
                 } catch (e) {
@@ -679,164 +849,204 @@
                 return false;
             }
             
-            // Sound functions - SMOOTHED SOUNDS
-            function playShoot() {
-                if (!soundEnabled || !audioInitialized) {
-                    // Try to initialize audio on user interaction
-                    if (!initAudio()) return;
-                }
-                
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                // Use a smoother waveform
-                oscillator.type = 'triangle';
-                oscillator.frequency.value = 440; // Lower frequency for less sharpness
-                
-                // Gentler attack and release
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.02);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.15);
-            }
-            
-            function playEnemyHit() {
-                if (!soundEnabled || !audioInitialized) {
-                    if (!initAudio()) return;
-                }
-                
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                // Use a smoother waveform
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-                oscillator.frequency.linearRampToValueAtTime(400, audioContext.currentTime + 0.3);
-                
-                // Gentler attack and longer release
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.05);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.3);
-            }
-            
-            function playPowerup() {
-                if (!soundEnabled || !audioInitialized) {
-                    if (!initAudio()) return;
-                }
-                
-                const notes = [330, 440, 550];
-                const noteDuration = 0.1;
-                
-                for (let i = 0; i < notes.length; i++) {
+            function playTestSound() {
+                try {
+                    if (!audioContext) return;
+                    
                     const oscillator = audioContext.createOscillator();
                     const gainNode = audioContext.createGain();
                     
-                    // Smoother sine wave
                     oscillator.type = 'sine';
-                    oscillator.frequency.value = notes[i];
+                    oscillator.frequency.value = 440;
                     
-                    // Gentler attack and release
-                    const startTime = audioContext.currentTime + i * noteDuration;
-                    gainNode.gain.setValueAtTime(0, startTime);
-                    gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.03);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + noteDuration);
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
                     
                     oscillator.connect(gainNode);
                     gainNode.connect(audioContext.destination);
                     
-                    oscillator.start(startTime);
-                    oscillator.stop(startTime + noteDuration);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                } catch (e) {
+                    console.error("Error playing test sound:", e);
+                }
+            }
+            
+            // Sound functions - SMOOTHED SOUNDS
+            function playShoot() {
+                if (!soundEnabled || !soundInitialized) {
+                    if (!audioContext && soundEnabled) {
+                        initAudio();
+                    }
+                    if (!soundInitialized) return;
+                }
+                
+                try {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    // Use a smoother waveform
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.value = 440; // Lower frequency for less sharpness
+                    
+                    // Gentler attack and release
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.02);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.15);
+                } catch (e) {
+                    console.error("Error playing shoot sound:", e);
+                }
+            }
+            
+            function playEnemyHit() {
+                if (!soundEnabled || !soundInitialized) return;
+                
+                try {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    // Use a smoother waveform
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                    oscillator.frequency.linearRampToValueAtTime(400, audioContext.currentTime + 0.3);
+                    
+                    // Gentler attack and longer release
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                } catch (e) {
+                    console.error("Error playing enemy hit sound:", e);
+                }
+            }
+            
+            function playPowerup() {
+                if (!soundEnabled || !soundInitialized) return;
+                
+                try {
+                    const notes = [330, 440, 550];
+                    const noteDuration = 0.1;
+                    
+                    for (let i = 0; i < notes.length; i++) {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        // Smoother sine wave
+                        oscillator.type = 'sine';
+                        oscillator.frequency.value = notes[i];
+                        
+                        // Gentler attack and release
+                        const startTime = audioContext.currentTime + i * noteDuration;
+                        gainNode.gain.setValueAtTime(0, startTime);
+                        gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.03);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + noteDuration);
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.start(startTime);
+                        oscillator.stop(startTime + noteDuration);
+                    }
+                } catch (e) {
+                    console.error("Error playing powerup sound:", e);
                 }
             }
             
             function playLevelComplete() {
-                if (!soundEnabled || !audioInitialized) {
-                    if (!initAudio()) return;
+                if (!soundEnabled || !soundInitialized) return;
+                
+                try {
+                    const notes = [330, 392, 440, 523];
+                    const noteDuration = 0.25;
+                    
+                    for (let i = 0; i < notes.length; i++) {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        // Smoother sine wave
+                        oscillator.type = 'sine';
+                        oscillator.frequency.value = notes[i];
+                        
+                        // Gentler attack and release
+                        const startTime = audioContext.currentTime + i * noteDuration;
+                        gainNode.gain.setValueAtTime(0, startTime);
+                        gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + noteDuration);
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.start(startTime);
+                        oscillator.stop(startTime + noteDuration);
+                    }
+                } catch (e) {
+                    console.error("Error playing level complete sound:", e);
                 }
+            }
+            
+            function playGameOver() {
+                if (!soundEnabled || !soundInitialized) return;
                 
-                const notes = [330, 392, 440, 523];
-                const noteDuration = 0.25;
-                
-                for (let i = 0; i < notes.length; i++) {
+                try {
                     const oscillator = audioContext.createOscillator();
                     const gainNode = audioContext.createGain();
                     
                     // Smoother sine wave
                     oscillator.type = 'sine';
-                    oscillator.frequency.value = notes[i];
+                    oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+                    oscillator.frequency.linearRampToValueAtTime(220, audioContext.currentTime + 1.0);
                     
                     // Gentler attack and release
-                    const startTime = audioContext.currentTime + i * noteDuration;
-                    gainNode.gain.setValueAtTime(0, startTime);
-                    gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + noteDuration);
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.0);
                     
                     oscillator.connect(gainNode);
                     gainNode.connect(audioContext.destination);
                     
-                    oscillator.start(startTime);
-                    oscillator.stop(startTime + noteDuration);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 1.0);
+                } catch (e) {
+                    console.error("Error playing game over sound:", e);
                 }
-            }
-            
-            function playGameOver() {
-                if (!soundEnabled || !audioInitialized) {
-                    if (!initAudio()) return;
-                }
-                
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                // Smoother sine wave
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
-                oscillator.frequency.linearRampToValueAtTime(220, audioContext.currentTime + 1.0);
-                
-                // Gentler attack and release
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.1);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.0);
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 1.0);
             }
             
             function playEnemyProjectile() {
-                if (!soundEnabled || !audioInitialized) {
-                    if (!initAudio()) return;
+                if (!soundEnabled || !soundInitialized) return;
+                
+                try {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    // Smoother sine wave
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 180;
+                    
+                    // Gentler attack and release
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.02);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.15);
+                } catch (e) {
+                    console.error("Error playing enemy projectile sound:", e);
                 }
-                
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                // Smoother sine wave
-                oscillator.type = 'sine';
-                oscillator.frequency.value = 180;
-                
-                // Gentler attack and release
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.02);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.15);
             }
             
             // Toggle sound on/off
@@ -847,8 +1057,8 @@
                 // Save preference
                 localStorage.setItem('soundEnabled', soundEnabled);
                 
-                // Initialize audio if turning on sound
-                if (soundEnabled) {
+                // Initialize audio if turning on sound and not already initialized
+                if (soundEnabled && !audioInitialized) {
                     initAudio();
                 }
             }
@@ -908,7 +1118,7 @@
             function resetLevel() {
                 // Reset player
                 player.x = (canvas.width - player.width) / 2;
-                player.y = canvas.height - player.height - 20;
+                player.y = canvas.height - player.height - (isMobile ? 100 : 20); // Higher position for mobile
                 player.isRapidFire = false;
                 
                 // Clear projectiles
@@ -1047,12 +1257,17 @@
                 
                 player.lastFired = now;
                 
+                // Select a random projectile type
+                const projectileTypes = ['projectileGavel', 'projectilePaper', 'projectileDollar'];
+                const randomType = projectileTypes[Math.floor(Math.random() * projectileTypes.length)];
+                
                 const projectile = {
                     x: player.x + (player.width / 2) - (PROJECTILE_WIDTH / 2),
                     y: player.y - PROJECTILE_HEIGHT,
                     width: PROJECTILE_WIDTH,
                     height: PROJECTILE_HEIGHT,
-                    speed: player.projectileSpeed
+                    speed: player.projectileSpeed,
+                    type: randomType // Store the selected type
                 };
                 
                 playerProjectiles.push(projectile);
@@ -1633,9 +1848,11 @@
                     }
                 });
                 
-                // Draw player projectiles
-                const projectileImage = svgCache.projectile;
+                // Draw player projectiles with random types
                 playerProjectiles.forEach(projectile => {
+                    const projectileType = projectile.type || 'projectileGavel'; // Default fallback
+                    const projectileImage = svgCache[projectileType];
+                    
                     if (projectileImage) {
                         ctx.drawImage(
                             projectileImage, 
