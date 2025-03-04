@@ -785,13 +785,10 @@
                 // Load high score
                 loadHighScore();
                 
-                // Show sound prompt on mobile
-                if (isMobile) {
-                    document.getElementById('sound-setup-prompt').classList.remove('hidden');
-                } else {
-                    // Show start screen immediately on desktop
-                    setGameState('start');
-                }
+		// Initialize audio automatically for all devices
+		initAudio();
+		// Show start screen immediately for all devices
+		setGameState('start');
             }
             
             function checkMobile() {
