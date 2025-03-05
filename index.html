@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DOGE Invaders | Political Satire Arcade Game</title>
     <meta name="description" content="Play DOGE Invaders, a politically satirical Space Invaders clone where you battle government waste or defend federal jobs.">
     <meta name="keywords" content="space invaders, political game, satire game, DOGE, government, browser game, HTML5 game, javascript game">
@@ -405,6 +405,75 @@
 	            padding: 10px;
 	        }
 	    }
+
+		/* Fix for iOS Safari viewport height issues */
+		@supports (-webkit-touch-callout: none) {
+			html, body {
+				height: -webkit-fill-available;
+			}
+			
+			body {
+				min-height: -webkit-fill-available;
+			}
+			
+			#outer-container {
+				max-height: -webkit-fill-available;
+				height: -webkit-fill-available;
+			}
+		}
+
+		/* Fix mobile controls positioning for Safari */
+		@media not all and (min-resolution:.001dpcm) { 
+			@supports (-webkit-appearance:none) {
+				#mobile-controls-container {
+					position: fixed;
+					bottom: env(safe-area-inset-bottom, 0);
+					left: 0;
+					right: 0;
+					z-index: 1000;
+				}
+				
+				#game-container {
+					/* Ensure game container doesn't overlap with controls */
+					height: calc(100% - 80px - 90px - env(safe-area-inset-bottom, 0));
+				}
+				
+				/* Add padding for notch/home indicator */
+				#outer-container {
+					padding-top: env(safe-area-inset-top, 10px);
+					padding-bottom: env(safe-area-inset-bottom, 10px);
+				}
+			}
+		}
+
+		/* Ensure game HUD stays visible in Safari */
+		@media not all and (min-resolution:.001dpcm) { 
+			@supports (-webkit-appearance:none) {
+				#hud-container {
+					position: relative;
+					top: env(safe-area-inset-top, 0);
+					height: 70px;
+					overflow: visible;
+				}
+			}
+		}
+
+		/* Adjust for iPhone notch and home indicator */
+		@media screen and (orientation: portrait) {
+			#outer-container {
+				padding-top: env(safe-area-inset-top, 10px);
+				padding-bottom: env(safe-area-inset-bottom, 10px);
+				padding-left: env(safe-area-inset-left, 10px);
+				padding-right: env(safe-area-inset-right, 10px);
+			}
+		}
+
+		/* Fix viewport height calculation in Safari */
+		@media screen and (max-width: 800px) {
+			#outer-container {
+				height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+			}
+		}
 	</style>
 </head>
 <body>
