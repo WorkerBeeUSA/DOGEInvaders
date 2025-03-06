@@ -49,10 +49,10 @@ While playing online is the easiest option, you can also download the game to pl
 
 ```bash
 # Clone the repository
-git clone https://github.com/domain-purchase-inquiries/doge-invaders.git
+git clone https://github.com/WorkerBeeUSA/dogeinvaders.git
 
 # Navigate to the project directory
-cd doge-invaders
+cd dogeinvaders
 
 # Open the game in your browser
 open index.html  # On macOS
