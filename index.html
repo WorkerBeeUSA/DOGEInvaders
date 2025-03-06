@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DOGE Invaders | Political Satire Arcade Game</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+
+	<title>DOGE Invaders | Political Satire Arcade Game</title>
     <meta name="description" content="Play DOGE Invaders, a politically satirical Space Invaders clone where you battle government waste or defend federal jobs.">
     <meta name="keywords" content="space invaders, political game, satire game, DOGE, government, browser game, HTML5 game, javascript game">
     
+	
     <!-- Favicon -->
     <!-- <link rel="icon" type="image/png" href="favicon.png"> -->
     
@@ -474,6 +478,60 @@
 				height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
 			}
 		}
+		
+		/* Android Chrome viewport fixes */
+		@supports (-webkit-appearance:none) and (not (-webkit-touch-callout:none)) {
+			#mobile-controls-container {
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				height: 90px;
+				/* Add extra padding for Android navigation bar */
+				padding-bottom: env(safe-area-inset-bottom, 8px);
+				/* Make sure it's visible over other content */
+				z-index: 1000;
+			}
+
+			/* Pull the controls up from the bottom to ensure visibility */
+			#mobile-controls {
+				position: relative;
+				bottom: 8px;
+				height: calc(100% - 8px);
+			}
+			
+			/* Adjust game container to not overlap with controls */
+			#game-container {
+				height: calc(100% - 80px - 90px - 8px);
+			}
+			
+			/* Ensure outer container doesn't overflow */
+			#outer-container {
+				height: calc(100% - 8px);
+				padding-bottom: 8px;
+			}
+		}
+
+		/* Specific fix for newer Android devices */
+		@media screen and (max-width: 800px) and (min-height: 800px) {
+			#mobile-controls-container {
+				/* Move controls up enough to be fully visible */
+				bottom: 8px;
+			}
+			
+			.mobile-btn {
+				/* Make buttons slightly smaller on tall screens for better positioning */
+				transform: scale(0.95);
+			}
+		}
+
+		/* Fix for fullscreen mode on Android */
+		@media screen and (display-mode: fullscreen) {
+			#mobile-controls-container {
+				/* Adjust for fullscreen mode */
+				bottom: 0;
+			}
+		}
 	</style>
 </head>
 <body>
@@ -640,15 +698,12 @@
 			];
 			
 			const fedEnemyQuotes = [
-				"I've never deleted an email!",
 				"My form has its own form!",
-				"I cc everyone, just in case!",
 				"Meetings about meetings!",
 				"I've perfected strategic delay!",
-				"My inbox has 10,000 unread items!",
-				"My process has 17 approval steps!",
-				"I schedule meetings in 30-minute blocks!",
-				"My desk plant is government property!"
+				"My new process has 17 approval steps!",
+				"My desk plant is my work buddy!",
+				"New clearance, more job security!"
 			];
 			
 			const dogeBossQuotes = [
@@ -659,51 +714,33 @@
 				"Efficiency over experience!",
 				"Your job can be automated!",
 				"Cut first, ask questions later!",
-				"Metrics over mission!",
-				"Pivot the regulatory framework!"
+				"Metrics over mission!"
 			];
 			
 			const dogeEnemyQuotes = [
-				"I sleep four hours and call it optimal!",
+				"Four hours sleep is all you need!",
 				"Measure bathroom breaks to the second!",
-				"Replaced manuals with QR codes!",
 				"Eliminated three departments today!",
-				"My KPIs are never low enough!",
 				"Meetings should be 15 minutes max!",
-				"Who needs institutional memory?",
-				"I've optimized paper clip usage!",
-				"Turned your job into a flowchart!"
 			];
 
 			const dogeLevelMessages = [
-			    "Saved $2.3M by replacing the FDA inspection team with a QR code system!",
-			    "Saved $8.7M by outsourcing background checks to an overseas contractor!",
-			    "Saved $12.4M by replacing the USDA food safety lab with an app!",
+			    "Saved $9.5M by reducing embassy security to a smart doorbell system!",
+				"Saved $8.7M by outsourcing background checks to an overseas contractor!",
 			    "Saved $3.1M by converting National Weather Service to a subscription model!",
 			    "Saved $5.8M by replacing the EPA water testing protocol with self-reporting!",
 			    "Saved $7.2M by converting all national park rangers to part-time contractors!",
-			    "Saved $9.5M by reducing embassy security to a smart doorbell system!",
 			    "Saved $4.3M by replacing the Census Bureau with social media analytics!",
 			    "Saved $6.7M by converting the National Archives to a blockchain solution!",
 			    "Saved $11.2M by replacing FEMA disaster response with a peer-to-peer app!",
-			    "Saved $15.4M by replacing air traffic control towers with an automated system!"
+			    "Saved $15.4M by replacing air traffic controllers with AI!"
 			];
 
 			const fedLevelMessages = [
-			    "My cubicle plant has survived three administrations!",
-			    "Only 4,721 days until retirement, but who's counting?",
-			    "They named a form after me: Form 27B-6, 'The Johnson Protocol'!",
-			    "My inbox has emails from 2008 I still haven't read!",
-			    "My ergonomic chair request was finally approved after 6 years!",
-			    "I've collected every commemorative government pen since 2001!",
-			    "I've survived 12 'government efficiency initiatives' so far!",
-			    "My office softball team is undefeated against Treasury!",
-			    "I know where all the working vending machines are!",
-			    "My security clearance just got upgraded, job security!",
-			    "I've attended 437 mandatory training sessions and counting!",
-			    "My pension calculation spreadsheet is my team's most popular file!",
-			    "The FAR is more than a reference, it's a way of life!",
-			    "My email signature is unmatched!"
+				"Accomplishment email request sent to SPAM!",
+			    "I just want to serve my country!",
+				"My grant money was awarded fairly!",
+			    "I've survived 12 'government efficiency initiatives' so far!"
 			];
 			
             // SVG definitions with improved pixel art styling
@@ -862,6 +899,7 @@
                 
                 // Check if on mobile
                 checkMobile();
+				adjustForAndroidNavigationBar();
                 
                 // Set up event listeners
                 document.getElementById('fed-employee').addEventListener('click', () => selectCharacter('fed'));
@@ -961,6 +999,37 @@
                 // Show start screen
                 setGameState('start');
             }
+			
+			function adjustForAndroidNavigationBar() {
+				// Check if running on Android
+				const isAndroid = /Android/.test(navigator.userAgent);
+				
+				if (isAndroid) {
+					// Add class to body for Android-specific styling
+					document.body.classList.add('android-device');
+					
+					// Listen for resize events which happen when Android keyboard appears/disappears
+					// or when navigation bar is shown/hidden
+					window.addEventListener('resize', function() {
+						// Recalculate heights and positions if needed
+						const mobileControls = document.getElementById('mobile-controls-container');
+						const viewportHeight = window.innerHeight;
+						
+						// Adjust position based on viewport height
+						if (viewportHeight < 500) {
+							// Keyboard is likely visible, hide controls
+							if (mobileControls) {
+								mobileControls.style.display = 'none';
+							}
+						} else {
+							// Show controls when keyboard is hidden
+							if (mobileControls && gameState === 'playing') {
+								mobileControls.style.display = 'block';
+							}
+						}
+					});
+				}
+			}			
             
             // Initialize SVG cache by pre-rendering SVGs
             function initSVGCache() {
@@ -1772,7 +1841,11 @@
                             // If enemy is defeated
                             if (enemy.health <= 0) {
                                 createDefeatedEnemy(enemy);
-                                enemies.splice(j, 1);
+                                
+								// Filter out any speech bubbles belonging to this enemy
+								speechBubbles = speechBubbles.filter(bubble => bubble.enemy !== enemy);
+								
+								enemies.splice(j, 1);
                                 playEnemyHit();
                                 
                                 // Apply screen shake
